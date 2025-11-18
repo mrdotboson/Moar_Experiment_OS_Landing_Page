@@ -654,23 +654,23 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
     <div className="absolute inset-0 bg-bloomberg-bg z-10">
       {/* Top Status Bar */}
       <div className="bg-bloomberg-panel border-b border-terminal h-6 flex items-center justify-between px-2 text-xs">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <span className="text-bloomberg-orange font-bold">CATALYST</span>
-          <span className="text-bloomberg-text-dim">v1.0.0</span>
+          <span className="hidden sm:inline text-bloomberg-text-dim">v1.0.0</span>
           <span className="text-bloomberg-green">●</span>
-          <span className="text-bloomberg-text-dim">ONLINE</span>
+          <span className="hidden sm:inline text-bloomberg-text-dim">ONLINE</span>
         </div>
-        <div className="flex items-center gap-4 text-bloomberg-text-dim">
-          <span>USER: TRADER_001</span>
-          <span>|</span>
-          <span suppressHydrationWarning>{currentTime || '--:--:--'}</span>
+        <div className="flex items-center gap-2 md:gap-4 text-bloomberg-text-dim">
+          <span className="hidden md:inline">USER: TRADER_001</span>
+          <span className="hidden md:inline">|</span>
+          <span suppressHydrationWarning className="text-[10px] md:text-xs">{currentTime || '--:--:--'}</span>
         </div>
       </div>
 
       {/* Main Terminal Area */}
       <div className="h-[calc(100%-24px)] flex overflow-hidden relative">
         {/* Left Sidebar - Optimized Command Reference */}
-        <div className="absolute left-0 top-0 bottom-0 w-64 bg-bloomberg-panel border-r border-terminal p-3 text-xs overflow-y-auto z-10">
+        <div className="hidden md:block absolute left-0 top-0 bottom-0 w-64 bg-bloomberg-panel border-r border-terminal p-3 text-xs overflow-y-auto z-10">
           <div className="text-[#8B5CF6] font-bold mb-3 uppercase text-xs border-b border-terminal pb-2">Command Reference</div>
           
           {/* Priority 1: Polymarket Event (Always Visible) */}
@@ -2459,11 +2459,11 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           )}
 
           {/* Main Input Area */}
-          <div className="flex-1 flex flex-col justify-center items-center p-8 min-h-0 overflow-y-auto" style={{ marginTop: '-10vh' }}>
-            <div className="w-full max-w-5xl">
+          <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto" style={{ marginTop: '-10vh' }}>
+            <div className="w-full max-w-5xl px-4 md:px-0">
               {/* Tagline - Above CATALYST */}
-              <div className="mb-3 flex items-center gap-2">
-                <div className="flex items-center gap-2 text-base font-mono">
+              <div className="mb-3 md:mb-3 flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 text-sm md:text-base font-mono">
                   <span className="text-bloomberg-text font-bold">React faster to the world's</span>
                   <span className="text-[#8B5CF6] font-bold">changing probabilities.</span>
                 </div>
@@ -2471,13 +2471,13 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               
               {/* Prompt Line - Optimized */}
               <div className="mb-3 flex items-center gap-2">
-                <span className="text-[#8B5CF6] font-mono text-sm font-bold">CATALYST&gt;</span>
+                <span className="text-[#8B5CF6] font-mono text-xs md:text-sm font-bold">CATALYST&gt;</span>
               </div>
 
               {/* Input Field */}
-              <div className="bg-bloomberg-panel border border-terminal p-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-[#8B5CF6]">&gt;</span>
+              <div className="bg-bloomberg-panel border border-terminal p-2 md:p-2 overflow-hidden">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-[#8B5CF6] text-xs md:text-sm flex-shrink-0">&gt;</span>
                   <input
                     key={`input-${isBetweenExamples ? 'empty' : 'active'}-${displayedText.length}`}
                     ref={inputRef}
@@ -2485,17 +2485,17 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     value={inputValue}
                     readOnly
                     placeholder=""
-                    className="flex-1 bg-transparent text-bloomberg-text outline-none font-mono text-sm cursor-default"
+                    className="flex-1 bg-transparent text-bloomberg-text outline-none font-mono text-xs md:text-sm cursor-default min-w-0 overflow-x-auto"
                     tabIndex={-1}
                   />
                   {showCursor && (
-                    <span className="w-[2px] h-4 bg-[#8B5CF6] blink" />
+                    <span className="w-[2px] h-4 bg-[#8B5CF6] blink flex-shrink-0" />
                   )}
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-4 flex items-center gap-2">
+              <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -2503,7 +2503,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     e.stopPropagation()
                     setShowEarlyAccessModal(true)
                   }}
-                  className="px-4 py-2 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] text-xs font-mono uppercase transition-colors cursor-pointer font-bold"
+                  className="px-4 py-3 md:py-2 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] text-xs font-mono uppercase transition-colors cursor-pointer font-bold text-center"
                 >
                   GET EARLY ACCESS
                 </button>
@@ -2514,7 +2514,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     e.stopPropagation()
                     window.open('https://twitter.com/use_catalyst', '_blank', 'noopener,noreferrer')
                   }}
-                  className="px-4 py-2 bg-bloomberg-panel border border-terminal text-bloomberg-text hover:bg-bloomberg-bg hover:border-[#8B5CF6] text-xs font-mono uppercase transition-colors cursor-pointer"
+                  className="px-4 py-3 md:py-2 bg-bloomberg-panel border border-terminal text-bloomberg-text hover:bg-bloomberg-bg hover:border-[#8B5CF6] text-xs font-mono uppercase transition-colors cursor-pointer text-center"
                 >
                   FOLLOW ON X
                 </button>
@@ -2525,7 +2525,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           {/* Early Access Modal */}
           {showEarlyAccessModal && (
             <div 
-              className="absolute inset-0 bg-bloomberg-bg/95 z-50 flex items-center justify-center p-8"
+              className="absolute inset-0 bg-bloomberg-bg/95 z-50 flex items-center justify-center p-4 md:p-8"
               onClick={() => {
                 setShowEarlyAccessModal(false)
                 setEarlyAccessEmail('')
@@ -2534,11 +2534,11 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               }}
             >
               <div 
-                className="bg-bloomberg-panel border-2 border-[#8B5CF6] max-w-lg w-full p-6"
+                className="bg-bloomberg-panel border-2 border-[#8B5CF6] max-w-lg w-full p-4 md:p-6 max-h-[90vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-[#8B5CF6] text-lg font-bold uppercase font-mono">EARLY ACCESS</div>
+                  <div className="text-[#8B5CF6] text-base md:text-lg font-bold uppercase font-mono">EARLY ACCESS</div>
                   <button
                     onClick={() => {
                       setShowEarlyAccessModal(false)
@@ -2546,7 +2546,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                       setEarlyAccessTelegram('')
                       setEarlyAccessSubmitted(false)
                     }}
-                    className="text-bloomberg-text-dim hover:text-bloomberg-text text-xl font-bold"
+                    className="text-bloomberg-text-dim hover:text-bloomberg-text text-2xl md:text-xl font-bold leading-none"
                   >
                     ×
                   </button>
@@ -2554,8 +2554,8 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                 
                 {!earlyAccessSubmitted ? (
                   <>
-                    <div className="mb-6 space-y-4">
-                      <div className="text-bloomberg-text text-sm font-mono">
+                    <div className="mb-4 md:mb-6 space-y-3 md:space-y-4">
+                      <div className="text-bloomberg-text text-xs md:text-sm font-mono">
                         Join the waitlist to be among the first to trade with event-aware conditional orders.
                       </div>
                       
@@ -2569,7 +2569,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                             value={earlyAccessEmail}
                             onChange={(e) => setEarlyAccessEmail(e.target.value)}
                             placeholder="trader@example.com"
-                            className="w-full bg-bloomberg-bg border border-terminal px-3 py-2 text-bloomberg-text text-sm font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim"
+                            className="w-full bg-bloomberg-bg border border-terminal px-3 py-2.5 md:py-2 text-bloomberg-text text-sm font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim"
                             autoFocus
                           />
                         </div>
@@ -2583,7 +2583,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                             value={earlyAccessTelegram}
                             onChange={(e) => setEarlyAccessTelegram(e.target.value)}
                             placeholder="@username"
-                            className="w-full bg-bloomberg-bg border border-terminal px-3 py-2 text-bloomberg-text text-sm font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim"
+                            className="w-full bg-bloomberg-bg border border-terminal px-3 py-2.5 md:py-2 text-bloomberg-text text-sm font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim"
                           />
                         </div>
                       </div>
@@ -2601,7 +2601,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                           }
                         }}
                         disabled={!earlyAccessEmail.trim()}
-                        className="flex-1 px-4 py-2.5 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] text-xs font-mono uppercase transition-colors cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 px-4 py-3 md:py-2.5 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] text-xs font-mono uppercase transition-colors cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         SUBMIT
                       </button>
