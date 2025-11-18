@@ -102,27 +102,9 @@ export default function Home() {
   }, [flowState, autoAdvance, advanceFlow, goBackFlow, resetFlow])
 
   const handleInputSubmit = (input: string) => {
-    setUserInput(input)
-    
-    // Parse the strategy
-    const parsed = parseStrategy(input)
-    setParsedStrategy(parsed)
-    
-    // Clear any existing timers
-    autoAdvanceTimers.current.forEach(timer => clearTimeout(timer))
-    autoAdvanceTimers.current = []
-    
-    // Show parsing animation briefly, then go to spec
-    setFlowState('parsing')
-    
-    // Auto-advance through flow (if enabled)
-    if (autoAdvance) {
-      autoAdvanceTimers.current.push(setTimeout(() => setFlowState('spec'), 2500)) // Quick parsing transition
-      autoAdvanceTimers.current.push(setTimeout(() => setFlowState('reveal'), 8000)) // Then to terminal
-    } else {
-      // If auto-advance is off, still show parsing briefly then go to spec
-      autoAdvanceTimers.current.push(setTimeout(() => setFlowState('spec'), 2500))
-    }
+    // Landing page - do not process strategies, just display the concept
+    // All navigation to parsing/execution pages is disabled
+    return
   }
 
   // Calculate progress

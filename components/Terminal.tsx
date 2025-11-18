@@ -182,17 +182,30 @@ const mockPositions: Position[] = [
   }
 ]
 
-// High-impact trading examples - only the most compelling use cases that traders actually need
+// High-impact trading examples - VC-worthy use cases that demonstrate the power of conditional trading
 const TRADING_EXAMPLES = [
-  'Long ETH if Polymarket "Ethereum ETF Approval" probability ≥ 65% and price below $3200',
-  'Close all positions if Polymarket "Market crash" probability ≥ 75%',
-  'Reduce position 50% if Polymarket "Fed rate cut" probability ≥ 60% and profit > 20%',
-  'Short BTC 3x if Polymarket "Bitcoin crash below $50k" probability ≥ 40% and RSI > 70',
-  'Close position if Polymarket "Regulatory ban" probability ≥ 50% and unrealized PnL > 0',
-  'Long SOL 5x if Polymarket "Solana breaks $200" probability ≥ 55% and volume > 2x average'
+  'Short BTC if "Fed rate hike" probability ≥ 90% and price above $102k',
+  'Increase position by 50% if "Ethereum ETF Approval" probability ≥ 90% and price below $3300',
+  'Close all positions if "China attacks Taiwan" probability ≥ 65%',
+  'Long BTC 3x if "Bitcoin ETF approval" probability ≥ 70% and OI rises 5% over 24h',
+  'Close 50% of short if "Fed rate cut" probability ≥ 100%',
+  'Long ETH if "Ethereum ETF Approval" probability ≥ 65% and price below $3200'
 ]
 
+// Shuffle array function
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
 export default function Terminal({ onSubmit, flowState, userInput }: TerminalProps) {
+  // Shuffle examples once on mount - different order each time someone opens the site
+  const shuffledExamples = useMemo(() => shuffleArray(TRADING_EXAMPLES), [])
+  
   const [input, setInput] = useState('')
   const [showCursor, setShowCursor] = useState(true)
   const [currentTime, setCurrentTime] = useState('')
@@ -205,21 +218,14 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
   const [showPlaceholder, setShowPlaceholder] = useState(false)
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Compute the actual input value to display - ensure it's always empty when no animation text
+  // Compute the actual input value to display - for landing page, always show animation
   const inputValue = useMemo(() => {
-    // If user has typed or input has content, use that
-    if (userHasTyped || input.length > 0) {
-      return input
-    }
-    // Only show displayedText if it has content and we're not between examples
-    // Explicitly check for empty string to prevent any placeholder text from showing
-    if (displayedText && displayedText.length > 0 && !isBetweenExamples) {
+    // For landing page, always show displayedText (animation)
+    if (displayedText && displayedText.length > 0) {
       return displayedText
     }
-    // Always return empty string when between examples or no text - will show placeholder
-    // Use String() to ensure it's always a string, never undefined/null
-    return String('')
-  }, [userHasTyped, input, displayedText, isBetweenExamples])
+    return ''
+  }, [displayedText])
 
   // Update time on client only to avoid hydration mismatch
   useEffect(() => {
@@ -231,26 +237,24 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
     return () => clearInterval(interval)
   }, [])
 
-  useEffect(() => {
-    if (flowState === 'start' || flowState === 'typing') {
-      inputRef.current?.focus()
-    }
-  }, [flowState])
+  // Don't auto-focus disabled input on landing page
 
   // Start animation on mount - ensure it starts properly
   useEffect(() => {
-    // Only start if we're in the right state and animation hasn't started
-    if ((flowState === 'start' || flowState === 'typing') && !userHasTyped && input.length === 0 && displayedText.length === 0) {
-      // Start immediately - no delay needed
-      const firstExample = TRADING_EXAMPLES[0]
+    // Start animation immediately when component mounts in start/typing state
+    if ((flowState === 'start' || flowState === 'typing') && displayedText.length === 0) {
+      // Start immediately - set first character to trigger animation
+      const firstExample = shuffledExamples[0]
       if (firstExample && firstExample.length > 0) {
-        // Set first character to trigger animation immediately
-        setDisplayedText(firstExample[0])
-        setIsTyping(true)
-        setIsBetweenExamples(false)
+        // Use setTimeout to ensure state updates properly
+        setTimeout(() => {
+          setDisplayedText(firstExample[0])
+          setIsTyping(true)
+          setIsBetweenExamples(false)
+        }, 100) // Small delay to ensure component is fully mounted
       }
     }
-  }, [flowState, userHasTyped, input, displayedText]) // Run when these change
+  }, [flowState, shuffledExamples]) // Only run when flowState changes (on mount)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -259,22 +263,8 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
     return () => clearInterval(interval)
   }, [])
 
-  // Typing animation effect - cycles through examples
+  // Typing animation effect - cycles through examples (always runs on landing page)
   useEffect(() => {
-    // Only animate if user hasn't typed and input is empty and we're in start/typing state
-    // If user has typed, immediately stop animation
-    if (userHasTyped || input.length > 0) {
-      // Stop animation immediately - clear any pending timeouts
-      if (animationTimeoutRef.current) {
-        clearTimeout(animationTimeoutRef.current)
-        animationTimeoutRef.current = null
-      }
-      setDisplayedText('')
-      setIsBetweenExamples(false)
-      setShowPlaceholder(false)
-      return
-    }
-    
     // Don't animate if not in the right flow state
     if (flowState !== 'start' && flowState !== 'typing') {
       if (animationTimeoutRef.current) {
@@ -283,32 +273,38 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
       }
       return
     }
+    
+    // Landing page - always animate (user can't type)
 
-    const currentExample = TRADING_EXAMPLES[exampleIndex]
+    const currentExample = shuffledExamples[exampleIndex]
     if (!currentExample) return
     
     let timeoutId: NodeJS.Timeout
 
     if (isTyping) {
-      // Typing phase - fast typing
+      // Typing phase - realistic typing speed with slight variation
       if (displayedText.length < currentExample.length) {
-        // If displayedText is empty, start immediately, otherwise use normal delay
-        const delay = displayedText.length === 0 ? 0 : 30
+        // If displayedText is empty, start immediately, otherwise use variable delay
+        const baseDelay = displayedText.length === 0 ? 0 : 40
+        // Add slight randomness to make it feel more human (30-50ms range)
+        const delay = baseDelay + (displayedText.length === 0 ? 0 : Math.random() * 20)
         timeoutId = setTimeout(() => {
           setDisplayedText(currentExample.slice(0, displayedText.length + 1))
           setShowPlaceholder(false) // Hide placeholder while typing
-        }, delay) // Fast typing: 30ms per character (0ms for first character)
+        }, delay)
         animationTimeoutRef.current = timeoutId
       } else {
         // Finished typing, wait a bit then start deleting
         timeoutId = setTimeout(() => {
           setIsTyping(false)
-        }, 2000) // Show full text for 2 seconds
+        }, 2500) // Show full text for 2.5 seconds
         animationTimeoutRef.current = timeoutId
       }
     } else {
-      // Deleting phase - fast delete
+      // Deleting phase - realistic backspace speed
       if (displayedText.length > 0) {
+        // Variable backspace speed (15-35ms) to feel more natural
+        const delay = 25 + Math.random() * 20
         timeoutId = setTimeout(() => {
           const newText = displayedText.slice(0, -1)
           if (newText.length === 0) {
@@ -318,16 +314,16 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             setShowPlaceholder(false) // Hide placeholder immediately
             // Start next example after pause
             const nextTimeout = setTimeout(() => {
-              setExampleIndex((prev) => (prev + 1) % TRADING_EXAMPLES.length)
+              setExampleIndex((prev) => (prev + 1) % shuffledExamples.length)
               setIsTyping(true)
               setIsBetweenExamples(false)
-            }, 500)
+            }, 800) // Slightly longer pause between examples
             animationTimeoutRef.current = nextTimeout
           } else {
             setDisplayedText(newText)
             setShowPlaceholder(false) // Keep placeholder hidden while deleting
           }
-        }, 20) // Fast delete: 20ms per character
+        }, delay)
         animationTimeoutRef.current = timeoutId
       } else {
         // Already empty - this shouldn't happen but handle it
@@ -338,7 +334,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           setExampleIndex((prev) => (prev + 1) % TRADING_EXAMPLES.length)
           setIsTyping(true)
           setIsBetweenExamples(false)
-        }, 500)
+        }, 800)
         animationTimeoutRef.current = timeoutId
       }
     }
@@ -349,21 +345,14 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
         animationTimeoutRef.current = null
       }
     }
-  }, [displayedText, isTyping, exampleIndex, userHasTyped, input, flowState])
+  }, [displayedText, isTyping, exampleIndex, flowState, shuffledExamples])
 
   // Force input to be empty and hide placeholder when displayedText is empty
   useEffect(() => {
-    if (displayedText.length === 0 && !userHasTyped && input.length === 0) {
+    if (displayedText.length === 0) {
       setShowPlaceholder(false) // Hide placeholder immediately
-      if (inputRef.current && userHasTyped) {
-        // Only directly manipulate DOM if user has interacted
-        inputRef.current.value = ''
-      }
-    } else if (userHasTyped && input.length === 0) {
-      // Only show placeholder when user has typed and cleared input
-      setShowPlaceholder(true)
     }
-  }, [displayedText, userHasTyped, input])
+  }, [displayedText])
 
   const [showHelp, setShowHelp] = useState(false)
   const [showExamples, setShowExamples] = useState(false)
@@ -421,9 +410,13 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [availableCategories, setAvailableCategories] = useState<string[]>([])
   const [showMarketRules, setShowMarketRules] = useState(false)
-  const [showPendingOrders, setShowPendingOrders] = useState(true)
-  const [showActivePositions, setShowActivePositions] = useState(true)
+  const [showPendingOrders, setShowPendingOrders] = useState(false)
+  const [showActivePositions, setShowActivePositions] = useState(false)
   const [eventSearchQuery, setEventSearchQuery] = useState('') // For searching events in position modal
+  const [showEarlyAccessModal, setShowEarlyAccessModal] = useState(false)
+  const [earlyAccessEmail, setEarlyAccessEmail] = useState('')
+  const [earlyAccessTelegram, setEarlyAccessTelegram] = useState('')
+  const [earlyAccessSubmitted, setEarlyAccessSubmitted] = useState(false)
 
   // Fetch live Polymarket markets on mount and when search/category changes
   useEffect(() => {
@@ -557,48 +550,9 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
   }, [hyperliquidMarkets])
 
   const surpriseMe = useCallback(() => {
-    // Realistic strategies - all must include Polymarket events, with optional OI/price
-    const strategies = [
-      'Long ETH if Polymarket "Ethereum ETF Approval" probability ≥ 65% and price below $3200',
-      'Long BTC when Polymarket "SEC approves spot Bitcoin ETF" probability ≥ 60% and OI rises 3% over 24h',
-      'Long ETH if Polymarket "Fed cuts rates" probability ≥ 70% and price above $3000',
-      'Short BTC if Polymarket "Bitcoin hits $100k by end of year" probability ≥ 75% and price above $95000',
-      'Long SOL when Polymarket "Fed cuts rates by 0.5%" probability ≥ 65% and OI above $1.5B',
-      'Long ETH if Polymarket "Ethereum upgrade completes successfully" probability ≥ 80% and price above $3100',
-      'Long BTC when Polymarket "Bitcoin ETF inflows exceed $1B" probability ≥ 70% and OI above $2.2B',
-      'Short ETH if Polymarket "Fed raises rates by 0.5%" probability ≥ 65% and price above $3500',
-      'Long SOL when Polymarket "Solana network upgrade succeeds" probability ≥ 75% and OI rises 5% over 24h',
-      'Long BTC if Polymarket "Bitcoin becomes legal tender in major country" probability ≥ 60% and price below $70000',
-      'Long ETH if Polymarket "Ethereum ETF Approval" probability ≥ 70% AND Polymarket "Fed cuts rates" probability ≥ 65%',
-      'Long BTC when Polymarket "Bitcoin ETF approval" probability ≥ 75% OR Polymarket "SEC approves crypto" probability ≥ 70%',
-      'Long ETH if Polymarket "Ethereum ETF Approval" probability ≥ 65% and OI rises 5% over 24h and price below $3200',
-      'Long BTC when Polymarket "Bitcoin ETF approval" probability ≥ 70% and OI above $2B and price above $95000',
-      'Long ETH if Polymarket "Ethereum ETF Approval" probability ≥ 65% and increase position by 50% if probability reaches 80%',
-      'Long BTC when Polymarket "Bitcoin hits $100k" probability ≥ 70% and OI rises 3% over 24h and decrease position by 25% if probability drops to 60%',
-      'Long ETH if Polymarket "Ethereum ETF Approval" probability ≥ 70% AND Polymarket "Fed cuts rates" probability ≥ 65% and OI above $1.5B',
-      'Long BTC if Polymarket "Bitcoin ETF approval" probability ≥ 75% and price above $95000 and increase position by 30% if probability reaches 85%'
-    ]
-    const randomStrategy = strategies[Math.floor(Math.random() * strategies.length)]
-    
-    // Set input immediately so user can see it
-    setInput(randomStrategy)
-    
-    // Submit immediately (no delay needed)
-    try {
-      // Add to history
-      setHistory(prev => [randomStrategy, ...prev.slice(0, 9)])
-      onSubmit(randomStrategy)
-      // Reset animation state after submission
-      setInput('')
-      setUserHasTyped(false)
-      setDisplayedText('')
-      setExampleIndex(0)
-      setIsTyping(true)
-    } catch (error) {
-      console.error('Error submitting random strategy:', error)
-      // Keep the input so user can see what was selected
-    }
-  }, [onSubmit])
+    // Landing page - do not generate random strategies
+    // This function is disabled for landing page demo
+  }, [])
 
   useEffect(() => {
     // Only attach keyboard handler when in start or typing state
@@ -607,19 +561,11 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Enter: Submit if input has text (works globally, not just when input is focused)
+      // Enter: Disabled for landing page - no submission
       if (e.key === 'Enter' && input.trim() && !showHelp && !showExamples) {
         e.preventDefault()
         e.stopPropagation()
-        // Add to history
-        setHistory(prev => [input.trim(), ...prev.slice(0, 9)])
-        onSubmit(input.trim())
-        // Reset animation state after submission
-        setInput('')
-        setUserHasTyped(false)
-        setDisplayedText('')
-        setExampleIndex(0)
-        setIsTyping(true)
+        // Landing page - do not submit strategies
         return
       }
       
@@ -627,6 +573,12 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
       if (e.key === 'Escape') {
         e.preventDefault()
         e.stopPropagation()
+        if (showEarlyAccessModal) {
+          setShowEarlyAccessModal(false)
+          setEarlyAccessEmail('')
+          setEarlyAccessTelegram('')
+          setEarlyAccessSubmitted(false)
+        }
         setShowHelp(false)
         setShowExamples(false)
         setShowStrategyBuilder(false)
@@ -678,7 +630,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
 
     window.addEventListener('keydown', handleKeyDown, true) // Use capture phase
     return () => window.removeEventListener('keydown', handleKeyDown, true)
-  }, [input, showHelp, showExamples, onSubmit, flowState, history, surpriseMe])
+  }, [input, showHelp, showExamples, onSubmit, flowState, history, surpriseMe, showEarlyAccessModal])
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Enter is handled globally, but prevent form submission
@@ -802,7 +754,8 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                             : 'No markets available'}
                         </div>
                       ) : (
-                        polymarketMarkets.map((market) => {
+                        // Show top 10 most relevant markets (sorted by liquidity)
+                        polymarketMarkets.slice(0, 10).map((market) => {
                       const prob = market.currentProbability || 70
                       const liquidityK = market.liquidity >= 1000000 
                         ? (market.liquidity / 1000000).toFixed(1) + 'M'
@@ -823,23 +776,8 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                       return (
                         <div
                           key={market.id}
-                          className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal group"
-                          onClick={() => {
-                            const suggestedAsset = suggestAsset(market.question)
-                            const suggestedProb = Math.round(prob) + 5 // Add 5% buffer
-                            setSelectedMarket(market)
-                            setBuilderMode('new')
-                            setBuilderAsset(suggestedAsset)
-                            setBuilderAction('Long')
-                            setBuilderProbability(suggestedProb)
-                            setBuilderPriceCondition({ enabled: false, type: 'below', value: '' })
-                            setBuilderOICondition({ enabled: false, type: 'above', value: '' })
-                            setSelectedPosition(null)
-                            setBuilderPositionAction('CLOSE')
-                            setBuilderPositionSize(100)
-                            setShowStrategyBuilder(true)
-                          }}
-                          title={`Click to build strategy: ${market.question}`}
+                          className="p-1.5 border border-transparent group"
+                          title={market.question}
                         >
                           <div className="flex items-start justify-between gap-1 mb-0.5">
                             <div className="text-[#8B5CF6] text-[9px] font-bold flex-1 line-clamp-2 group-hover:text-[#8B5CF6]">
@@ -879,14 +817,14 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             </div>
             {expandedSections.examples && (
               <div className="pl-2 text-[10px] space-y-1 mt-1">
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long ETH if Polymarket "Ethereum ETF Approval" probability ≥ 65% and price below $3200')}>
-                  Long ETH if Polymarket "Ethereum ETF Approval" probability ≥ 65% and price below $3200
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long BTC 3x if "Bitcoin ETF approval" probability ≥ 70% and OI rises 5% over 24h')}>
+                  Long BTC 3x if "Bitcoin ETF approval" probability ≥ 70% and OI rises 5% over 24h
                 </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long BTC when Polymarket "SEC approves spot Bitcoin ETF" probability ≥ 60% and OI rises 3% over 24h')}>
-                  Long BTC when Polymarket "SEC approves spot Bitcoin ETF" probability ≥ 60% and OI rises 3% over 24h
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Short BTC if "Fed rate hike" probability ≥ 90% and price above $102k')}>
+                  Short BTC if "Fed rate hike" probability ≥ 90% and price above $102k
                 </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long ETH if Polymarket "Fed cuts rates" probability ≥ 70% and price above $3000')}>
-                  Long ETH if Polymarket "Fed cuts rates" probability ≥ 70% and price above $3000
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close all positions if "China attacks Taiwan" probability ≥ 65%')}>
+                  Close all positions if "China attacks Taiwan" probability ≥ 65%
                 </div>
               </div>
             )}
@@ -920,14 +858,14 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             {expandedSections.position && (
               <div className="pl-2 text-[10px] space-y-1 mt-1">
                 <div className="text-bloomberg-text-dim text-[8px] mb-0.5 italic">Protect profits when events resolve</div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal bg-bloomberg-green/10 border-bloomberg-green/30" onClick={() => setInput('Close position if Polymarket "Ethereum ETF Approval" probability ≥ 75%')}>
-                  Close position if Polymarket "Ethereum ETF Approval" probability ≥ 75%
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal bg-bloomberg-green/10 border-bloomberg-green/30" onClick={() => setInput('Close position if "Ethereum ETF Approval" probability ≥ 75%')}>
+                  Close position if "Ethereum ETF Approval" probability ≥ 75%
                 </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close 50% of position if Polymarket "Bitcoin hits $100k" probability ≥ 80%')}>
-                  Close 50% of position if Polymarket "Bitcoin hits $100k" probability ≥ 80%
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close 50% of position if "Bitcoin hits $100k" probability ≥ 80%')}>
+                  Close 50% of position if "Bitcoin hits $100k" probability ≥ 80%
                 </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Reverse position when Polymarket "Bitcoin hits $100k" probability ≥ 80% and price above $95000')}>
-                  Reverse position when Polymarket "Bitcoin hits $100k" probability ≥ 80% and price above $95000
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Reverse position when "Bitcoin hits $100k" probability ≥ 80% and price above $95000')}>
+                  Reverse position when "Bitcoin hits $100k" probability ≥ 80% and price above $95000
                 </div>
               </div>
             )}
@@ -961,16 +899,16 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             {expandedSections.exits && (
               <div className="pl-2 text-[10px] space-y-1 mt-1">
                 <div className="text-bloomberg-text-dim text-[8px] mb-0.5 italic">Exit before market moves against you</div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal bg-bloomberg-red/10 border-bloomberg-red/30" onClick={() => setInput('Close position if Polymarket "Ethereum ETF Approval" probability drops 5% in 1h')}>
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal bg-bloomberg-red/10 border-bloomberg-red/30" onClick={() => setInput('Close position if "Ethereum ETF Approval" probability drops 5% in 1h')}>
                   Close if probability drops 5% in 1h
                 </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close position if Polymarket "Bitcoin ETF Approval" event resolves before probability reaches 75%')}>
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close position if "Bitcoin ETF Approval" event resolves before probability reaches 75%')}>
                   Close if event resolves early
                 </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close position if Polymarket "Fed cuts rates" market liquidity drops below $500K')}>
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close position if "Fed cuts rates" market liquidity drops below $500K')}>
                   Close if market liquidity drops below $500K
                 </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close position if Polymarket "Event" probability drops below 50%')}>
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close position if "Event" probability drops below 50%')}>
                   Close if probability drops below 50%
                 </div>
               </div>
@@ -1005,17 +943,17 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             {expandedSections.conditions && (
               <div className="pl-2 text-[10px] space-y-1 mt-1">
                 <div className="text-bloomberg-text-dim text-[9px] mb-0.5">Open Interest (OI):</div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long BTC when Polymarket "SEC approves spot Bitcoin ETF" probability ≥ 60% and OI rises 3% over 24h')}>
-                  OI rises 3% over 24h
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long BTC when "Bitcoin ETF approval" probability ≥ 70% and OI rises 5% over 24h')}>
+                  OI rises 5% over 24h
                 </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long ETH if Polymarket "Ethereum ETF Approval" probability ≥ 65% and OI above $2.2B')}>
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long ETH if "Ethereum ETF Approval" probability ≥ 65% and OI above $2.2B')}>
                   OI above $2.2B
                 </div>
                 <div className="text-bloomberg-text-dim text-[9px] mt-1 mb-0.5">Price Levels:</div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long ETH if Polymarket "Fed cuts rates" probability ≥ 70% and price above $3000')}>
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long ETH if "Fed cuts rates" probability ≥ 70% and price above $3000')}>
                   Price above $3000
                 </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long BTC if Polymarket "Bitcoin becomes legal tender" probability ≥ 60% and price below $70000')}>
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long BTC if "Bitcoin becomes legal tender" probability ≥ 60% and price below $70000')}>
                   Price below $70000
                 </div>
               </div>
@@ -1169,6 +1107,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               </div>
             </div>
           )}
+
 
 
           {/* Position Management Modal */}
@@ -2520,12 +2459,19 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           )}
 
           {/* Main Input Area */}
-          <div className="flex-1 flex flex-col justify-center items-center p-8 min-h-0 overflow-y-auto">
-            <div className="w-full max-w-4xl">
+          <div className="flex-1 flex flex-col justify-center items-center p-8 min-h-0 overflow-y-auto" style={{ marginTop: '-10vh' }}>
+            <div className="w-full max-w-5xl">
+              {/* Tagline - Above CATALYST */}
+              <div className="mb-3 flex items-center gap-2">
+                <div className="flex items-center gap-2 text-base font-mono">
+                  <span className="text-bloomberg-text font-bold">React faster to the world's</span>
+                  <span className="text-[#8B5CF6] font-bold">changing probabilities.</span>
+                </div>
+              </div>
+              
               {/* Prompt Line - Optimized */}
               <div className="mb-3 flex items-center gap-2">
                 <span className="text-[#8B5CF6] font-mono text-sm font-bold">CATALYST&gt;</span>
-                <span className="text-bloomberg-text-dim text-xs">Describe your event-aware strategy in natural language</span>
               </div>
 
               {/* Input Field */}
@@ -2536,67 +2482,11 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     key={`input-${isBetweenExamples ? 'empty' : 'active'}-${displayedText.length}`}
                     ref={inputRef}
                     type="text"
-                    value={inputValue === '' ? '' : inputValue}
-                    onClick={(e) => {
-                      // When user clicks, only stop animation if there's displayed text
-                      // Don't stop on initial click when animation hasn't started yet
-                      if (!userHasTyped && displayedText.length > 0) {
-                        // Clear any pending animation timeouts
-                        if (animationTimeoutRef.current) {
-                          clearTimeout(animationTimeoutRef.current)
-                          animationTimeoutRef.current = null
-                        }
-                        // Stop animation immediately
-                        setUserHasTyped(true)
-                        setDisplayedText('')
-                        setIsBetweenExamples(false)
-                        setShowPlaceholder(false)
-                        setInput('')
-                        setIsTyping(false)
-                        // Ensure input is focused
-                        e.currentTarget.focus()
-                      }
-                    }}
-                    onFocus={(e) => {
-                      // Only stop animation if there's actually displayed text (user clicked during animation)
-                      // Don't stop on initial focus/autofocus when there's no text yet
-                      if (!userHasTyped && displayedText.length > 0) {
-                        // Clear any pending animation timeouts
-                        if (animationTimeoutRef.current) {
-                          clearTimeout(animationTimeoutRef.current)
-                          animationTimeoutRef.current = null
-                        }
-                        setUserHasTyped(true)
-                        setDisplayedText('')
-                        setIsBetweenExamples(false)
-                        setShowPlaceholder(false)
-                        setInput('')
-                        setIsTyping(false)
-                      }
-                    }}
-                    onChange={(e) => {
-                      const newValue = e.target.value
-                      setInput(newValue)
-                      if (!userHasTyped && newValue.length > 0) {
-                        // User started typing - stop animation
-                        setUserHasTyped(true)
-                        setDisplayedText('')
-                        setIsBetweenExamples(false)
-                        setShowPlaceholder(false)
-                      } else if (newValue.length === 0 && userHasTyped) {
-                        // Input cleared - restart animation
-                        setUserHasTyped(false)
-                        setDisplayedText('')
-                        setIsBetweenExamples(false)
-                        setExampleIndex(0)
-                        setIsTyping(true)
-                        setShowPlaceholder(false)
-                      }
-                    }}
-                    onKeyDown={handleInputKeyDown}
-                    placeholder={showPlaceholder ? 'Long ETH if Polymarket "Ethereum ETF Approval" probability ≥ 65% and price below $3200' : ''}
-                    className="flex-1 bg-transparent text-bloomberg-text outline-none font-mono text-sm"
-                    autoFocus
+                    value={inputValue}
+                    readOnly
+                    placeholder=""
+                    className="flex-1 bg-transparent text-bloomberg-text outline-none font-mono text-sm cursor-default"
+                    tabIndex={-1}
                   />
                   {showCursor && (
                     <span className="w-[2px] h-4 bg-[#8B5CF6] blink" />
@@ -2604,68 +2494,154 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                 </div>
               </div>
 
-              {/* Status Line - Enhanced */}
-              {input.trim() ? (
-                <div className="mt-2 flex items-center gap-3">
-                  <div className="text-xs text-bloomberg-green flex items-center gap-1.5">
-                    <span>●</span>
-                    <span>Ready to compile</span>
-                  </div>
-                  <div className="text-xs text-bloomberg-text-dim">
-                    Press <kbd className="px-1 py-0.5 bg-bloomberg-panel border border-terminal text-[10px]">ENTER</kbd> to compile
-                  </div>
-                </div>
-              ) : (
-                <div className="mt-2 text-xs text-bloomberg-text-dim flex items-center gap-2">
-                  <span>○</span>
-                  <span>Start typing or click an example above</span>
-                </div>
-              )}
-
-              {/* Action Buttons - Optimized */}
+              {/* Action Buttons */}
               <div className="mt-4 flex items-center gap-2">
                 <button
                   type="button"
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    surpriseMe()
+                    setShowEarlyAccessModal(true)
                   }}
-                  className="px-3 py-1.5 bg-bloomberg-panel border border-terminal text-[#8B5CF6] hover:bg-bloomberg-bg hover:border-[#8B5CF6] text-xs font-mono uppercase transition-colors cursor-pointer"
-                  title="Generate random strategy (F4)"
+                  className="px-4 py-2 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] text-xs font-mono uppercase transition-colors cursor-pointer font-bold"
                 >
-                  [RANDOM]
+                  GET EARLY ACCESS
                 </button>
                 <button
                   type="button"
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    setInput('')
-                    inputRef.current?.focus()
+                    window.open('https://twitter.com/use_catalyst', '_blank', 'noopener,noreferrer')
                   }}
-                  className="px-3 py-1.5 bg-bloomberg-panel border border-terminal text-bloomberg-text-dim hover:text-bloomberg-text hover:border-bloomberg-text-dim text-xs font-mono uppercase transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-bloomberg-panel border border-terminal text-bloomberg-text hover:bg-bloomberg-bg hover:border-[#8B5CF6] text-xs font-mono uppercase transition-colors cursor-pointer"
                 >
-                  [CLEAR]
+                  FOLLOW ON X
                 </button>
-                {history.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setInput(history[0])
-                      inputRef.current?.focus()
-                    }}
-                    className="px-3 py-1.5 bg-bloomberg-panel border border-terminal text-bloomberg-text-dim hover:text-bloomberg-text hover:border-bloomberg-orange text-xs font-mono uppercase transition-colors cursor-pointer"
-                    title="Use last strategy (↑)"
-                  >
-                    [HISTORY]
-                  </button>
-                )}
               </div>
             </div>
           </div>
+
+          {/* Early Access Modal */}
+          {showEarlyAccessModal && (
+            <div 
+              className="absolute inset-0 bg-bloomberg-bg/95 z-50 flex items-center justify-center p-8"
+              onClick={() => {
+                setShowEarlyAccessModal(false)
+                setEarlyAccessEmail('')
+                setEarlyAccessTelegram('')
+                setEarlyAccessSubmitted(false)
+              }}
+            >
+              <div 
+                className="bg-bloomberg-panel border-2 border-[#8B5CF6] max-w-lg w-full p-6"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-[#8B5CF6] text-lg font-bold uppercase font-mono">EARLY ACCESS</div>
+                  <button
+                    onClick={() => {
+                      setShowEarlyAccessModal(false)
+                      setEarlyAccessEmail('')
+                      setEarlyAccessTelegram('')
+                      setEarlyAccessSubmitted(false)
+                    }}
+                    className="text-bloomberg-text-dim hover:text-bloomberg-text text-xl font-bold"
+                  >
+                    ×
+                  </button>
+                </div>
+                
+                {!earlyAccessSubmitted ? (
+                  <>
+                    <div className="mb-6 space-y-4">
+                      <div className="text-bloomberg-text text-sm font-mono">
+                        Join the waitlist to be among the first to trade with event-aware conditional orders.
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-bloomberg-text-dim text-xs font-mono uppercase mb-1">
+                            EMAIL
+                          </label>
+                          <input
+                            type="email"
+                            value={earlyAccessEmail}
+                            onChange={(e) => setEarlyAccessEmail(e.target.value)}
+                            placeholder="trader@example.com"
+                            className="w-full bg-bloomberg-bg border border-terminal px-3 py-2 text-bloomberg-text text-sm font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim"
+                            autoFocus
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-bloomberg-text-dim text-xs font-mono uppercase mb-1">
+                            TELEGRAM USERNAME (OPTIONAL)
+                          </label>
+                          <input
+                            type="text"
+                            value={earlyAccessTelegram}
+                            onChange={(e) => setEarlyAccessTelegram(e.target.value)}
+                            placeholder="@username"
+                            className="w-full bg-bloomberg-bg border border-terminal px-3 py-2 text-bloomberg-text text-sm font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          if (earlyAccessEmail.trim()) {
+                            // Here you would typically send to your backend
+                            console.log('Early access signup:', { email: earlyAccessEmail, telegram: earlyAccessTelegram })
+                            setEarlyAccessSubmitted(true)
+                          }
+                        }}
+                        disabled={!earlyAccessEmail.trim()}
+                        className="flex-1 px-4 py-2.5 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] text-xs font-mono uppercase transition-colors cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        SUBMIT
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowEarlyAccessModal(false)
+                          setEarlyAccessEmail('')
+                          setEarlyAccessTelegram('')
+                        }}
+                        className="px-4 py-2.5 bg-bloomberg-bg border border-terminal text-bloomberg-text hover:border-bloomberg-text-dim text-xs font-mono uppercase transition-colors cursor-pointer"
+                      >
+                        CANCEL
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="text-bloomberg-green text-4xl mb-4">✓</div>
+                    <div className="text-bloomberg-text text-lg font-bold font-mono mb-2">
+                      YOU'RE ON THE LIST
+                    </div>
+                    <div className="text-bloomberg-text-dim text-sm font-mono mb-6">
+                      We'll notify you when Catalyst is ready.
+                    </div>
+                    <button
+                      onClick={() => {
+                        setShowEarlyAccessModal(false)
+                        setEarlyAccessEmail('')
+                        setEarlyAccessTelegram('')
+                        setEarlyAccessSubmitted(false)
+                      }}
+                      className="px-4 py-2 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] text-xs font-mono uppercase transition-colors cursor-pointer font-bold"
+                    >
+                      CLOSE
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Help Modal */}
           {showHelp && (
@@ -2870,23 +2846,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                       return (
                         <div
                           key={market.id}
-                          className="bg-bloomberg-panel border-2 border-terminal p-4 hover:border-[#8B5CF6] transition-colors cursor-pointer group"
-                          onClick={() => {
-                            const suggestedAsset = suggestAsset(market.question)
-                            const suggestedProb = Math.round(prob) + 5 // Add 5% buffer
-                            setSelectedMarket(market)
-                            setBuilderMode('new')
-                            setBuilderAsset(suggestedAsset)
-                            setBuilderAction('Long')
-                            setBuilderProbability(suggestedProb)
-                            setBuilderPriceCondition({ enabled: false, type: 'below', value: '' })
-                            setBuilderOICondition({ enabled: false, type: 'above', value: '' })
-                            setSelectedPosition(null)
-                            setBuilderPositionAction('CLOSE')
-                            setBuilderPositionSize(100)
-                            setShowMarketsModal(false)
-                            setShowStrategyBuilder(true)
-                          }}
+                          className="bg-bloomberg-panel border-2 border-terminal p-4 group"
                         >
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <div className="text-[#8B5CF6] text-sm font-bold flex-1 group-hover:text-[#8B5CF6] line-clamp-2">
@@ -3674,14 +3634,9 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                 : `${Math.floor(timeInPosition / 60)}h ${timeInPosition % 60}m`
               
               return (
-                <button
+                <div
                   key={position.id}
-                  onClick={() => {
-                    setSelectedPosition(position)
-                    setShowConditionBuilder(true)
-                    setShowPositionModal(true)
-                  }}
-                  className="bg-bloomberg-bg border border-terminal hover:border-[#8B5CF6] transition-all cursor-pointer px-3 py-2 min-w-[220px] relative group"
+                  className="bg-bloomberg-bg border border-terminal px-3 py-2 min-w-[220px] relative group"
                 >
                   {/* Active indicator bar */}
                   <div className="absolute top-0 left-0 right-0 h-0.5 bg-bloomberg-green/60 group-hover:bg-bloomberg-green"></div>
@@ -3735,11 +3690,11 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     </div>
                     <div className="text-bloomberg-text-dim text-[7px]">
                       {timeDisplay}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </button>
-              )
-            })}
+                  )
+                })}
                     
                     {/* Active Limit Orders */}
                     {limitOrders.map((order) => {
