@@ -209,7 +209,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
   const [input, setInput] = useState('')
   const [showCursor, setShowCursor] = useState(true)
   const [currentTime, setCurrentTime] = useState('')
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputContainerRef = useRef<HTMLDivElement>(null)
   const [exampleIndex, setExampleIndex] = useState(0)
   const [displayedText, setDisplayedText] = useState('')
   const [isTyping, setIsTyping] = useState(true)
@@ -346,6 +346,14 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
       }
     }
   }, [displayedText, isTyping, exampleIndex, flowState, shuffledExamples])
+
+  // Auto-scroll input container to show full text on mobile
+  useEffect(() => {
+    if (inputContainerRef.current && displayedText.length > 0) {
+      // Scroll to the right to show the latest text
+      inputContainerRef.current.scrollLeft = inputContainerRef.current.scrollWidth
+    }
+  }, [displayedText])
 
   // Force input to be empty and hide placeholder when displayedText is empty
   useEffect(() => {
@@ -608,7 +616,6 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
         e.stopPropagation()
         if (history.length > 0) {
           setInput(history[0])
-          setTimeout(() => inputRef.current?.focus(), 0)
         }
         return
       }
@@ -1901,7 +1908,6 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                               setBuilderConditionPrice({ enabled: false, type: 'above', value: '' })
                               setBuilderConditionOI({ enabled: false, type: 'rises', value: '', timeframe: '24h' })
                               setBuilderConditionFunding({ enabled: false, type: 'above', value: '' })
-                              setTimeout(() => inputRef.current?.focus(), 100)
                             }}
                             disabled={!selectedPolymarketEvent || !conditionThreshold || isNaN(parseFloat(conditionThreshold)) || parseFloat(conditionThreshold) < 0 || parseFloat(conditionThreshold) > 100}
                             className={`w-full py-2.5 font-bold text-[10px] uppercase transition-colors ${
@@ -2333,7 +2339,6 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                                 setSelectedPosition(null)
                                 setSelectedQuickAction(null)
                                 setAdditionalConditions({})
-                                setTimeout(() => inputRef.current?.focus(), 100)
                               }}
                               className="flex-1 bg-[#8B5CF6] hover:bg-[#8B5CF6]/80 text-bloomberg-bg px-3 py-2 text-[10px] font-bold transition-colors"
                             >
@@ -2346,7 +2351,6 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                                 setSelectedPosition(null)
                                 setSelectedQuickAction(null)
                                 setAdditionalConditions({})
-                                setTimeout(() => inputRef.current?.focus(), 100)
                               }}
                               className="px-3 py-2 bg-bloomberg-bg border border-terminal text-bloomberg-text text-[10px] font-bold hover:border-[#8B5CF6] transition-colors"
                             >
@@ -2443,7 +2447,6 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                                 setInput(`Remove exit condition: ${condition.description}`)
                                 setShowPositionModal(false)
                                 setSelectedPosition(null)
-                                setTimeout(() => inputRef.current?.focus(), 100)
                               }}
                               className="opacity-0 group-hover:opacity-100 text-bloomberg-red text-[9px] px-2 py-1 hover:bg-bloomberg-red/10 transition-opacity"
                             >
@@ -2459,8 +2462,82 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             </div>
           )}
 
+          {/* Mobile Header - Event-Aware Explainers & Connection Status */}
+          <div className="md:hidden bg-bloomberg-bg border-b border-terminal px-4 py-3 flex-shrink-0">
+            <div className="mb-3">
+              <div className="text-[#8B5CF6] text-sm font-bold uppercase mb-1.5">Event-Aware Conditional Orders</div>
+              <div className="text-bloomberg-text-dim text-xs leading-relaxed">Trade automatically when Polymarket events trigger + market conditions align</div>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="px-2.5 py-1 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-[10px] font-mono">
+                ● POLYMARKET CONNECTED
+              </div>
+              <div className="px-2.5 py-1 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-[10px] font-mono">
+                ● HYPERLIQUID CONNECTED
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Hyperliquid Ticker */}
+          {hyperliquidMarkets.length > 0 && !loadingHyperliquid && (
+            <div className="md:hidden bg-bloomberg-panel border-b border-terminal overflow-hidden relative h-10 flex-shrink-0">
+              <div className="flex items-center h-full">
+                <div className="bg-bloomberg-green text-bloomberg-bg px-3 py-1.5 text-[10px] font-bold uppercase whitespace-nowrap z-10 flex-shrink-0">
+                  HYPERLIQUID
+                </div>
+                <div className="flex-1 overflow-hidden relative">
+                  <div className="flex items-center h-full animate-scroll-left">
+                    {(() => {
+                      const cryptoMarkets = hyperliquidMarkets.filter(market => {
+                        const symbol = market.symbol.toUpperCase()
+                        return symbol === 'BTC' || symbol === 'ETH' || symbol === 'SOL'
+                      })
+                      
+                      const sortedMarkets = cryptoMarkets.sort((a, b) => {
+                        const priority = { 'BTC': 1, 'ETH': 2, 'SOL': 3 }
+                        const aPriority = priority[a.symbol.toUpperCase() as keyof typeof priority] || 4
+                        const bPriority = priority[b.symbol.toUpperCase() as keyof typeof priority] || 4
+                        return aPriority - bPriority
+                      }).slice(0, 3)
+                      
+                      return [...sortedMarkets, ...sortedMarkets].map((market, idx) => {
+                        const volumeM = market.volume24hUsd >= 1000000 
+                          ? (market.volume24hUsd / 1000000).toFixed(1) + 'M'
+                          : (market.volume24hUsd / 1000).toFixed(0) + 'K'
+                        const priceFormatted = market.price >= 1000
+                          ? market.price.toLocaleString(undefined, { maximumFractionDigits: 0 })
+                          : market.price.toFixed(2)
+                        const changeColor = market.change24h >= 0 ? 'text-bloomberg-green' : 'text-bloomberg-red'
+                        const changeSign = market.change24h >= 0 ? '+' : ''
+                        return (
+                          <div
+                            key={`mobile-${market.symbol}-${idx}`}
+                            className="flex items-center gap-3 px-4 whitespace-nowrap"
+                          >
+                            <div className="text-bloomberg-text text-[10px] font-bold">
+                              {market.symbol}
+                            </div>
+                            <div className="text-bloomberg-text text-[10px]">
+                              ${priceFormatted}
+                            </div>
+                            <div className={`${changeColor} text-[10px] font-bold`}>
+                              {changeSign}{market.change24h.toFixed(2)}%
+                            </div>
+                            <div className="text-bloomberg-text-dim text-[9px]">
+                              Vol: {volumeM}
+                            </div>
+                          </div>
+                        )
+                      })
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Main Input Area */}
-          <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[120px] md:pb-0" style={{ marginTop: 'clamp(-5vh, -10vh, 0px)' }}>
+          <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[120px] md:pb-0" style={{ marginTop: 'clamp(-3vh, -5vh, 0px)' }}>
             <div className="w-full max-w-5xl px-4 md:px-0">
               {/* Tagline - Above CATALYST */}
               <div className="mb-4 md:mb-3 flex items-center gap-2">
@@ -2476,20 +2553,16 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               </div>
 
               {/* Input Field */}
-              <div className="bg-bloomberg-panel border border-terminal p-3 md:p-2 overflow-hidden w-full">
-                <div className="flex items-center gap-2 md:gap-2 min-w-0">
+              <div 
+                ref={inputContainerRef}
+                className="bg-bloomberg-panel border border-terminal p-3 md:p-2 w-full overflow-x-auto input-container"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                <div className="flex items-center gap-2 md:gap-2" style={{ minWidth: 'max-content' }}>
                   <span className="text-[#8B5CF6] text-sm md:text-sm flex-shrink-0">&gt;</span>
-                  <input
-                    key={`input-${isBetweenExamples ? 'empty' : 'active'}-${displayedText.length}`}
-                    ref={inputRef}
-                    type="text"
-                    value={inputValue}
-                    readOnly
-                    placeholder=""
-                    className="flex-1 bg-transparent text-bloomberg-text outline-none font-mono text-sm md:text-sm cursor-default min-w-0 overflow-x-scroll"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                    tabIndex={-1}
-                  />
+                  <span className="bg-transparent text-bloomberg-text font-mono text-sm md:text-sm whitespace-nowrap">
+                    {inputValue}
+                  </span>
                   {showCursor && (
                     <span className="w-[2px] h-4 md:h-4 bg-[#8B5CF6] blink flex-shrink-0" />
                   )}
@@ -3401,7 +3474,6 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                       
                       setInput(strategy)
                       setShowStrategyBuilder(false)
-                      inputRef.current?.focus()
                     }}
                     disabled={builderMode === 'adjust' && !selectedPositionId}
                     className={`w-full py-2.5 font-bold text-[10px] uppercase transition-colors ${
@@ -3498,27 +3570,27 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
         ]
         
         return (positions.length > 0 || pendingOrders.length > 0) ? (
-          <div className="absolute bottom-0 md:bottom-[24px] left-0 md:left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-3 md:px-4 py-3 md:py-2.5 pb-[max(32px,env(safe-area-inset-bottom))] flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[40vh] md:max-h-[200px] overflow-y-auto">
+          <div className="absolute bottom-0 md:bottom-[24px] left-0 md:left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-3 md:px-4 py-3 md:py-2.5 pb-[max(60px,calc(env(safe-area-inset-bottom)+32px))] flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[50vh] md:max-h-[200px] overflow-y-auto">
             {/* Conditional Orders Section */}
             {pendingOrders.length > 0 && (
               <div className="mb-3 pb-3 border-b border-terminal/50">
-                <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1.5 md:gap-2 flex-1 min-w-0">
-                      <button
-                        onClick={() => setShowPendingOrders(!showPendingOrders)}
-                        className="text-bloomberg-text-dim hover:text-bloomberg-text text-sm md:text-[8px] transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center"
-                      >
-                        {showPendingOrders ? '▼' : '▶'}
-                      </button>
-                      <div className="w-1.5 h-1.5 bg-bloomberg-orange rounded-full animate-pulse flex-shrink-0"></div>
-                      <div className="text-bloomberg-text text-sm md:text-[9px] font-bold uppercase truncate">
-                        Pending Conditional Orders ({pendingOrders.length})
-                      </div>
+                <button
+                  onClick={() => setShowPendingOrders(!showPendingOrders)}
+                  className="w-full flex items-center justify-between mb-2 text-left"
+                >
+                  <div className="flex items-center gap-1.5 md:gap-2 flex-1 min-w-0">
+                    <span className="text-bloomberg-text-dim text-sm md:text-[8px] transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center">
+                      {showPendingOrders ? '▼' : '▶'}
+                    </span>
+                    <div className="w-1.5 h-1.5 bg-bloomberg-orange rounded-full animate-pulse flex-shrink-0"></div>
+                    <div className="text-bloomberg-text text-sm md:text-[9px] font-bold uppercase truncate">
+                      Pending Conditional Orders ({pendingOrders.length})
                     </div>
-                    <div className="text-bloomberg-text-dim text-[8px] hidden sm:block">
-                      Waiting for conditions to trigger
-                    </div>
-                </div>
+                  </div>
+                  <div className="text-bloomberg-text-dim text-[8px] hidden sm:block">
+                    Waiting for conditions to trigger
+                  </div>
+                </button>
                 {showPendingOrders && (
                   <div className="flex gap-2 overflow-x-auto pb-1">
                   {pendingOrders.map((order) => {
@@ -3600,14 +3672,14 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               
               return totalActive > 0 ? (
                 <div>
-                  <div className="flex items-center justify-between mb-2">
+                  <button
+                    onClick={() => setShowActivePositions(!showActivePositions)}
+                    className="w-full flex items-center justify-between mb-2 text-left"
+                  >
                     <div className="flex items-center gap-1.5 md:gap-2 flex-1 min-w-0">
-                      <button
-                        onClick={() => setShowActivePositions(!showActivePositions)}
-                        className="text-bloomberg-text-dim hover:text-bloomberg-text text-sm md:text-[8px] transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center"
-                      >
+                      <span className="text-bloomberg-text-dim text-sm md:text-[8px] transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center">
                         {showActivePositions ? '▼' : '▶'}
-                      </button>
+                      </span>
                       <div className="w-1.5 h-1.5 bg-bloomberg-green rounded-full animate-pulse flex-shrink-0"></div>
                       <div className="text-bloomberg-text text-sm md:text-[9px] font-bold uppercase truncate">
                         Active Positions & Limit Orders ({totalActive})
@@ -3621,7 +3693,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     <div className="text-bloomberg-text-dim text-[8px] hidden sm:block">
                       Click to manage & add automations
                     </div>
-                  </div>
+                  </button>
                   {showActivePositions && (
                     <div className="flex gap-2 overflow-x-auto pb-1">
                     {/* Active Positions */}

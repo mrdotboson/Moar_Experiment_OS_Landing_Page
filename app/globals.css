@@ -165,6 +165,21 @@ input[type="text"] {
   scrollbar-width: none;
 }
 
+/* Input container scrolling on mobile - hide scrollbar */
+.input-container {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.input-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+
 /* Mobile safe area support */
 @supports (padding: max(0px)) {
   .safe-area-top {
