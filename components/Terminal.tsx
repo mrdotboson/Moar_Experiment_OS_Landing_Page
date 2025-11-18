@@ -2466,12 +2466,8 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             </div>
           )}
 
-          {/* Mobile Header - Event-Aware Explainers & Connection Status */}
-          <div className="md:hidden bg-bloomberg-bg border-b border-terminal px-4 py-3.5 flex-shrink-0">
-            <div className="mb-3.5">
-              <div className="text-[#8B5CF6] text-sm font-bold uppercase mb-1.5">Event-Aware Conditional Orders</div>
-              <div className="text-bloomberg-text-dim text-xs leading-relaxed">Trade automatically when Polymarket events trigger + market conditions align</div>
-            </div>
+          {/* Mobile Header - Connection Status Only */}
+          <div className="md:hidden bg-bloomberg-bg border-b border-terminal px-4 py-3 flex-shrink-0">
             <div className="flex items-center gap-2 flex-wrap">
               <div className="px-2.5 py-1 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-[10px] font-mono">
                 ● POLYMARKET CONNECTED
@@ -3675,7 +3671,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               const totalActive = positions.length + limitOrders.length
               
               return totalActive > 0 ? (
-                <div>
+                <div className="hidden md:block">
                   <button
                     onClick={() => setShowActivePositions(!showActivePositions)}
                     className="w-full flex items-center justify-between mb-2 text-left"
