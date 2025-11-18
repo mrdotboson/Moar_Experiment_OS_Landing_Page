@@ -155,3 +155,43 @@ body {
   border-bottom: 1px solid var(--bloomberg-border);
 }
 
+/* Hide scrollbar for input fields */
+input[type="text"]::-webkit-scrollbar {
+  display: none;
+}
+
+input[type="text"] {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mobile safe area support */
+@supports (padding: max(0px)) {
+  .safe-area-top {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+  .safe-area-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+  .safe-area-left {
+    padding-left: max(env(safe-area-inset-left), 0px);
+  }
+  .safe-area-right {
+    padding-right: max(env(safe-area-inset-right), 0px);
+  }
+}
+
+/* Prevent text size adjustment on iOS */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Better touch targets on mobile */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+

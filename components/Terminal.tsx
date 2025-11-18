@@ -653,23 +653,23 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
   return (
     <div className="absolute inset-0 bg-bloomberg-bg z-10">
       {/* Top Status Bar */}
-      <div className="bg-bloomberg-panel border-b border-terminal h-6 flex items-center justify-between px-2 text-xs">
+      <div className="bg-bloomberg-panel border-b border-terminal h-8 md:h-6 flex items-center justify-between px-3 md:px-2 text-xs">
         <div className="flex items-center gap-2 md:gap-4">
-          <img src="/catalyst-logo.svg" alt="Catalyst" className="h-4 w-4 flex-shrink-0 bg-transparent" style={{ backgroundColor: 'transparent' }} />
-          <span className="text-bloomberg-orange font-bold">CATALYST</span>
-          <span className="hidden sm:inline text-bloomberg-text-dim">v1.0.0</span>
-          <span className="text-bloomberg-green">●</span>
-          <span className="hidden sm:inline text-bloomberg-text-dim">ONLINE</span>
+          <img src="/catalyst-logo.svg" alt="Catalyst" className="h-5 w-5 md:h-4 md:w-4 flex-shrink-0 bg-transparent" style={{ backgroundColor: 'transparent' }} />
+          <span className="text-bloomberg-orange font-bold text-sm md:text-xs">CATALYST</span>
+          <span className="hidden lg:inline text-bloomberg-text-dim text-xs">v1.0.0</span>
+          <span className="text-bloomberg-green text-sm md:text-xs">●</span>
+          <span className="hidden lg:inline text-bloomberg-text-dim text-xs">ONLINE</span>
         </div>
         <div className="flex items-center gap-2 md:gap-4 text-bloomberg-text-dim">
-          <span className="hidden md:inline">USER: TRADER_001</span>
-          <span className="hidden md:inline">|</span>
-          <span suppressHydrationWarning className="text-[10px] md:text-xs">{currentTime || '--:--:--'}</span>
+          <span className="hidden lg:inline text-xs">USER: TRADER_001</span>
+          <span className="hidden lg:inline text-xs">|</span>
+          <span suppressHydrationWarning className="text-xs md:text-[10px]">{currentTime || '--:--:--'}</span>
         </div>
       </div>
 
       {/* Main Terminal Area */}
-      <div className="h-[calc(100%-24px)] flex overflow-hidden relative">
+      <div className="h-[calc(100%-32px)] md:h-[calc(100%-24px)] flex overflow-hidden relative">
         {/* Left Sidebar - Optimized Command Reference */}
         <div className="hidden md:block absolute left-0 top-0 bottom-0 w-64 bg-bloomberg-panel border-r border-terminal p-3 text-xs overflow-y-auto z-10">
           <div className="text-[#8B5CF6] font-bold mb-3 uppercase text-xs border-b border-terminal pb-2">Command Reference</div>
@@ -1013,9 +1013,9 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
         </div>
 
         {/* Main Content Area */}
-        <div className={`flex-1 flex flex-col min-w-0 overflow-hidden ml-64 relative`}>
+        <div className={`flex-1 flex flex-col min-w-0 overflow-hidden ml-0 md:ml-64 relative`}>
           {/* Terminal Header - Optimized Value Proposition */}
-          <div className="bg-bloomberg-bg border-b border-terminal px-4 py-1.5 flex-shrink-0">
+          <div className="hidden md:block bg-bloomberg-bg border-b border-terminal px-4 py-1.5 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-[#8B5CF6] text-xs font-bold uppercase">Event-Aware Conditional Orders</div>
@@ -1034,7 +1034,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
 
           {/* Hyperliquid Markets Ticker - Scrolling Conveyor Belt */}
           {hyperliquidMarkets.length > 0 && !loadingHyperliquid && (
-            <div className="bg-bloomberg-panel border-b border-terminal overflow-hidden relative h-8 flex-shrink-0">
+            <div className="hidden md:block bg-bloomberg-panel border-b border-terminal overflow-hidden relative h-8 flex-shrink-0">
               <div className="flex items-center h-full">
                 <div className="bg-bloomberg-green text-bloomberg-bg px-3 py-1 text-[9px] font-bold uppercase whitespace-nowrap z-10 flex-shrink-0">
                   HYPERLIQUID
@@ -2460,25 +2460,25 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           )}
 
           {/* Main Input Area */}
-          <div className="flex-1 flex flex-col justify-center items-center p-3 md:p-8 min-h-0 overflow-y-auto" style={{ marginTop: '-10vh' }}>
-            <div className="w-full max-w-5xl px-2 md:px-0">
+          <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[120px] md:pb-0" style={{ marginTop: 'clamp(-5vh, -10vh, 0px)' }}>
+            <div className="w-full max-w-5xl px-4 md:px-0">
               {/* Tagline - Above CATALYST */}
-              <div className="mb-3 md:mb-3 flex items-center gap-2">
-                <div className="flex flex-wrap items-center gap-2 text-sm md:text-base font-mono">
+              <div className="mb-4 md:mb-3 flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 text-base md:text-base font-mono leading-relaxed">
                   <span className="text-bloomberg-text font-bold">React faster to the world's</span>
                   <span className="text-[#8B5CF6] font-bold">changing probabilities.</span>
                 </div>
               </div>
               
               {/* Prompt Line - Optimized */}
-              <div className="mb-3 flex items-center gap-2">
-                <span className="text-[#8B5CF6] font-mono text-xs md:text-sm font-bold">CATALYST&gt;</span>
+              <div className="mb-3 md:mb-3 flex items-center gap-2">
+                <span className="text-[#8B5CF6] font-mono text-sm md:text-sm font-bold">CATALYST&gt;</span>
               </div>
 
               {/* Input Field */}
-              <div className="bg-bloomberg-panel border border-terminal p-2 md:p-2 overflow-hidden w-full">
-                <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
-                  <span className="text-[#8B5CF6] text-[10px] md:text-sm flex-shrink-0">&gt;</span>
+              <div className="bg-bloomberg-panel border border-terminal p-3 md:p-2 overflow-hidden w-full">
+                <div className="flex items-center gap-2 md:gap-2 min-w-0">
+                  <span className="text-[#8B5CF6] text-sm md:text-sm flex-shrink-0">&gt;</span>
                   <input
                     key={`input-${isBetweenExamples ? 'empty' : 'active'}-${displayedText.length}`}
                     ref={inputRef}
@@ -2486,17 +2486,18 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     value={inputValue}
                     readOnly
                     placeholder=""
-                    className="flex-1 bg-transparent text-bloomberg-text outline-none font-mono text-[10px] md:text-sm cursor-default min-w-0 overflow-x-auto"
+                    className="flex-1 bg-transparent text-bloomberg-text outline-none font-mono text-sm md:text-sm cursor-default min-w-0 overflow-x-scroll"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                     tabIndex={-1}
                   />
                   {showCursor && (
-                    <span className="w-[2px] h-3 md:h-4 bg-[#8B5CF6] blink flex-shrink-0" />
+                    <span className="w-[2px] h-4 md:h-4 bg-[#8B5CF6] blink flex-shrink-0" />
                   )}
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="mt-6 md:mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-2">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -2504,7 +2505,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     e.stopPropagation()
                     setShowEarlyAccessModal(true)
                   }}
-                  className="px-4 py-3 md:py-2 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] text-xs font-mono uppercase transition-colors cursor-pointer font-bold text-center"
+                  className="px-6 py-4 md:px-4 md:py-2 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] text-sm md:text-xs font-mono uppercase transition-colors cursor-pointer font-bold text-center min-h-[44px] md:min-h-0"
                 >
                   GET EARLY ACCESS
                 </button>
@@ -2515,7 +2516,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     e.stopPropagation()
                     window.open('https://twitter.com/use_catalyst', '_blank', 'noopener,noreferrer')
                   }}
-                  className="px-4 py-3 md:py-2 bg-bloomberg-panel border border-terminal text-bloomberg-text hover:bg-bloomberg-bg hover:border-[#8B5CF6] text-xs font-mono uppercase transition-colors cursor-pointer text-center"
+                  className="px-6 py-4 md:px-4 md:py-2 bg-bloomberg-panel border border-terminal text-bloomberg-text hover:bg-bloomberg-bg hover:border-[#8B5CF6] text-sm md:text-xs font-mono uppercase transition-colors cursor-pointer text-center min-h-[44px] md:min-h-0"
                 >
                   FOLLOW ON X
                 </button>
@@ -2526,7 +2527,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           {/* Early Access Modal */}
           {showEarlyAccessModal && (
             <div 
-              className="absolute inset-0 bg-bloomberg-bg/95 z-50 flex items-center justify-center p-4 md:p-8"
+              className="absolute inset-0 bg-bloomberg-bg/95 z-50 flex items-center justify-center p-0 md:p-8"
               onClick={() => {
                 setShowEarlyAccessModal(false)
                 setEarlyAccessEmail('')
@@ -2535,11 +2536,11 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               }}
             >
               <div 
-                className="bg-bloomberg-panel border-2 border-[#8B5CF6] max-w-lg w-full p-4 md:p-6 max-h-[90vh] overflow-y-auto"
+                className="bg-bloomberg-panel border-2 border-[#8B5CF6] max-w-lg w-full h-full md:h-auto md:max-h-[90vh] p-6 md:p-6 overflow-y-auto flex flex-col"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-[#8B5CF6] text-base md:text-lg font-bold uppercase font-mono">EARLY ACCESS</div>
+                <div className="flex items-center justify-between mb-6 md:mb-4">
+                  <div className="text-[#8B5CF6] text-lg md:text-lg font-bold uppercase font-mono">EARLY ACCESS</div>
                   <button
                     onClick={() => {
                       setShowEarlyAccessModal(false)
@@ -2547,7 +2548,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                       setEarlyAccessTelegram('')
                       setEarlyAccessSubmitted(false)
                     }}
-                    className="text-bloomberg-text-dim hover:text-bloomberg-text text-2xl md:text-xl font-bold leading-none"
+                    className="text-bloomberg-text-dim hover:text-bloomberg-text text-3xl md:text-xl font-bold leading-none min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center"
                   >
                     ×
                   </button>
@@ -2555,14 +2556,14 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                 
                 {!earlyAccessSubmitted ? (
                   <>
-                    <div className="mb-4 md:mb-6 space-y-3 md:space-y-4">
-                      <div className="text-bloomberg-text text-xs md:text-sm font-mono">
+                    <div className="mb-6 md:mb-6 space-y-4 md:space-y-4 flex-1">
+                      <div className="text-bloomberg-text text-sm md:text-sm font-mono leading-relaxed">
                         Join the waitlist to be among the first to trade with event-aware conditional orders.
                       </div>
                       
-                      <div className="space-y-3">
+                      <div className="space-y-4 md:space-y-3">
                         <div>
-                          <label className="block text-bloomberg-text-dim text-xs font-mono uppercase mb-1">
+                          <label className="block text-bloomberg-text-dim text-sm md:text-xs font-mono uppercase mb-2 md:mb-1">
                             EMAIL
                           </label>
                           <input
@@ -2570,13 +2571,13 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                             value={earlyAccessEmail}
                             onChange={(e) => setEarlyAccessEmail(e.target.value)}
                             placeholder="trader@example.com"
-                            className="w-full bg-bloomberg-bg border border-terminal px-3 py-2.5 md:py-2 text-bloomberg-text text-sm font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim"
+                            className="w-full bg-bloomberg-bg border border-terminal px-4 py-3 md:px-3 md:py-2 text-bloomberg-text text-base md:text-sm font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim min-h-[44px] md:min-h-0"
                             autoFocus
                           />
                         </div>
                         
                         <div>
-                          <label className="block text-bloomberg-text-dim text-xs font-mono uppercase mb-1">
+                          <label className="block text-bloomberg-text-dim text-sm md:text-xs font-mono uppercase mb-2 md:mb-1">
                             TELEGRAM USERNAME (OPTIONAL)
                           </label>
                           <input
@@ -2584,13 +2585,13 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                             value={earlyAccessTelegram}
                             onChange={(e) => setEarlyAccessTelegram(e.target.value)}
                             placeholder="@username"
-                            className="w-full bg-bloomberg-bg border border-terminal px-3 py-2.5 md:py-2 text-bloomberg-text text-sm font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim"
+                            className="w-full bg-bloomberg-bg border border-terminal px-4 py-3 md:px-3 md:py-2 text-bloomberg-text text-base md:text-sm font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim min-h-[44px] md:min-h-0"
                           />
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 mt-auto">
                       <button
                         onClick={(e) => {
                           e.preventDefault()
@@ -2602,7 +2603,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                           }
                         }}
                         disabled={!earlyAccessEmail.trim()}
-                        className="flex-1 px-4 py-3 md:py-2.5 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] text-xs font-mono uppercase transition-colors cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 px-6 py-4 md:px-4 md:py-2.5 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] text-sm md:text-xs font-mono uppercase transition-colors cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] md:min-h-0"
                       >
                         SUBMIT
                       </button>
@@ -3497,7 +3498,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
         ]
         
         return (positions.length > 0 || pendingOrders.length > 0) ? (
-          <div className="absolute bottom-[24px] left-0 md:left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-2 md:px-4 py-2 md:py-2.5 flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[200px] overflow-y-auto">
+          <div className="absolute bottom-0 md:bottom-[24px] left-0 md:left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-3 md:px-4 py-3 md:py-2.5 pb-[max(32px,env(safe-area-inset-bottom))] flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[40vh] md:max-h-[200px] overflow-y-auto">
             {/* Conditional Orders Section */}
             {pendingOrders.length > 0 && (
               <div className="mb-3 pb-3 border-b border-terminal/50">
@@ -3505,12 +3506,12 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                       <div className="flex items-center gap-1.5 md:gap-2 flex-1 min-w-0">
                       <button
                         onClick={() => setShowPendingOrders(!showPendingOrders)}
-                        className="text-bloomberg-text-dim hover:text-bloomberg-text text-[8px] transition-colors flex-shrink-0"
+                        className="text-bloomberg-text-dim hover:text-bloomberg-text text-sm md:text-[8px] transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center"
                       >
                         {showPendingOrders ? '▼' : '▶'}
                       </button>
                       <div className="w-1.5 h-1.5 bg-bloomberg-orange rounded-full animate-pulse flex-shrink-0"></div>
-                      <div className="text-bloomberg-text text-[8px] md:text-[9px] font-bold uppercase truncate">
+                      <div className="text-bloomberg-text text-sm md:text-[9px] font-bold uppercase truncate">
                         Pending Conditional Orders ({pendingOrders.length})
                       </div>
                     </div>
@@ -3530,41 +3531,41 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     return (
                       <div
                         key={order.id}
-                        className="bg-bloomberg-bg border border-bloomberg-orange/30 hover:border-bloomberg-orange transition-all cursor-pointer px-2 md:px-3 py-2 min-w-[240px] md:min-w-[280px] relative group"
+                        className="bg-bloomberg-bg border border-bloomberg-orange/30 hover:border-bloomberg-orange transition-all cursor-pointer px-3 md:px-3 py-3 md:py-2 min-w-[280px] md:min-w-[280px] relative group"
                       >
                         {/* Active indicator bar */}
                         <div className="absolute top-0 left-0 right-0 h-0.5 bg-bloomberg-orange/60 group-hover:bg-bloomberg-orange"></div>
                         
                         {/* Header */}
-                        <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center justify-between mb-2 md:mb-1.5">
                           <div className="flex items-center gap-2">
-                            <span className="text-bloomberg-text text-[10px] font-bold">{order.asset}</span>
-                            <span className={`${directionColor} text-[9px] font-bold`}>
+                            <span className="text-bloomberg-text text-sm md:text-[10px] font-bold">{order.asset}</span>
+                            <span className={`${directionColor} text-xs md:text-[9px] font-bold`}>
                               {order.direction.toUpperCase()}
                             </span>
-                            <span className="text-bloomberg-text-dim text-[8px]">
+                            <span className="text-bloomberg-text-dim text-[10px] md:text-[8px]">
                               {order.leverage}x
                             </span>
                           </div>
-                          <span className="text-bloomberg-orange text-[8px] font-bold px-1.5 py-0.5 bg-bloomberg-orange/20 border border-bloomberg-orange/30">
+                          <span className="text-bloomberg-orange text-[10px] md:text-[8px] font-bold px-2 py-1 md:px-1.5 md:py-0.5 bg-bloomberg-orange/20 border border-bloomberg-orange/30">
                             {order.status}
                           </span>
                         </div>
                         
                         {/* Condition */}
-                        <div className="mb-1.5">
-                          <div className="text-bloomberg-text-dim text-[7px] mb-0.5">Condition:</div>
-                          <div className="text-[#8B5CF6] text-[9px] font-mono leading-tight">
+                        <div className="mb-2 md:mb-1.5">
+                          <div className="text-bloomberg-text-dim text-[9px] md:text-[7px] mb-1 md:mb-0.5">Condition:</div>
+                          <div className="text-[#8B5CF6] text-xs md:text-[9px] font-mono leading-relaxed md:leading-tight">
                             {order.condition}
                           </div>
                         </div>
                         
                         {/* Size and Time */}
-                        <div className="flex items-center justify-between mt-1.5">
-                          <div className="text-bloomberg-text-dim text-[8px]">
+                        <div className="flex items-center justify-between mt-2 md:mt-1.5">
+                          <div className="text-bloomberg-text-dim text-[10px] md:text-[8px]">
                             Size: ${(order.size / 1000).toFixed(0)}K
                           </div>
-                          <div className="text-bloomberg-text-dim text-[7px]">
+                          <div className="text-bloomberg-text-dim text-[9px] md:text-[7px]">
                             {timeDisplay}
                           </div>
                         </div>
@@ -3603,12 +3604,12 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     <div className="flex items-center gap-1.5 md:gap-2 flex-1 min-w-0">
                       <button
                         onClick={() => setShowActivePositions(!showActivePositions)}
-                        className="text-bloomberg-text-dim hover:text-bloomberg-text text-[8px] transition-colors flex-shrink-0"
+                        className="text-bloomberg-text-dim hover:text-bloomberg-text text-sm md:text-[8px] transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center"
                       >
                         {showActivePositions ? '▼' : '▶'}
                       </button>
                       <div className="w-1.5 h-1.5 bg-bloomberg-green rounded-full animate-pulse flex-shrink-0"></div>
-                      <div className="text-bloomberg-text text-[8px] md:text-[9px] font-bold uppercase truncate">
+                      <div className="text-bloomberg-text text-sm md:text-[9px] font-bold uppercase truncate">
                         Active Positions & Limit Orders ({totalActive})
                       </div>
                       {positions.some(p => p.exitConditions && p.exitConditions.length > 0) && (
@@ -3637,26 +3638,26 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               return (
                 <div
                   key={position.id}
-                  className="bg-bloomberg-bg border border-terminal px-2 md:px-3 py-2 min-w-[200px] md:min-w-[220px] relative group"
+                  className="bg-bloomberg-bg border border-terminal px-3 md:px-3 py-3 md:py-2 min-w-[240px] md:min-w-[220px] relative group"
                 >
                   {/* Active indicator bar */}
                   <div className="absolute top-0 left-0 right-0 h-0.5 bg-bloomberg-green/60 group-hover:bg-bloomberg-green"></div>
                   
                   {/* Header with asset and automation indicator */}
-                  <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center justify-between mb-2 md:mb-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-bloomberg-text text-[10px] font-bold">{position.asset}</span>
-                      <span className={`${directionColor} text-[9px] font-bold`}>
+                      <span className="text-bloomberg-text text-sm md:text-[10px] font-bold">{position.asset}</span>
+                      <span className={`${directionColor} text-xs md:text-[9px] font-bold`}>
                         {position.direction.toUpperCase()}
                       </span>
-                      <span className="text-bloomberg-text-dim text-[8px]">
+                      <span className="text-bloomberg-text-dim text-[10px] md:text-[8px]">
                         {position.leverage}x
                       </span>
                     </div>
                     {hasAutomations && (
                       <div className="flex items-center gap-1">
-                        <span className="w-1 h-1 bg-[#8B5CF6] rounded-full"></span>
-                        <span className="text-[#8B5CF6] text-[7px] font-bold">
+                        <span className="w-1.5 h-1.5 md:w-1 md:h-1 bg-[#8B5CF6] rounded-full"></span>
+                        <span className="text-[#8B5CF6] text-[9px] md:text-[7px] font-bold">
                           {position.exitConditions!.length}
                         </span>
                       </div>
@@ -3664,16 +3665,16 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                   </div>
                   
                   {/* Price row with change indicator */}
-                  <div className="flex items-center justify-between text-[9px] mb-1">
+                  <div className="flex items-center justify-between text-xs md:text-[9px] mb-2 md:mb-1">
                     <div className="text-bloomberg-text-dim">
                       Entry: ${position.entryPrice.toFixed(2)}
                     </div>
                     <div className="flex items-center gap-1">
                       {position.priceChange === 'up' && (
-                        <span className="text-bloomberg-green text-[8px]">▲</span>
+                        <span className="text-bloomberg-green text-[10px] md:text-[8px]">▲</span>
                       )}
                       {position.priceChange === 'down' && (
-                        <span className="text-bloomberg-red text-[8px]">▼</span>
+                        <span className="text-bloomberg-red text-[10px] md:text-[8px]">▼</span>
                       )}
                       <span className={`text-bloomberg-text font-bold ${position.priceChange ? 'animate-pulse' : ''}`}>
                         ${position.currentPrice.toFixed(2)}
@@ -3682,14 +3683,14 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                   </div>
                   
                   {/* P&L row */}
-                  <div className="flex items-center justify-between mt-1.5">
-                    <div className={`${pnlColor} text-[10px] font-bold`}>
+                  <div className="flex items-center justify-between mt-2 md:mt-1.5">
+                    <div className={`${pnlColor} text-sm md:text-[10px] font-bold`}>
                       {pnlSign}${position.unrealizedPnl.toFixed(2)}
                     </div>
-                    <div className={`${pnlColor} text-[9px] font-bold`}>
+                    <div className={`${pnlColor} text-xs md:text-[9px] font-bold`}>
                       {pnlSign}{position.unrealizedPnlPercent.toFixed(2)}%
                     </div>
-                    <div className="text-bloomberg-text-dim text-[7px]">
+                    <div className="text-bloomberg-text-dim text-[9px] md:text-[7px]">
                       {timeDisplay}
                         </div>
                       </div>
@@ -3733,26 +3734,26 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                             setShowConditionBuilder(true)
                             setShowPositionModal(true)
                           }}
-                          className="bg-bloomberg-bg border border-bloomberg-blue/30 hover:border-bloomberg-blue transition-all cursor-pointer px-2 md:px-3 py-2 min-w-[220px] md:min-w-[240px] relative group"
+                          className="bg-bloomberg-bg border border-bloomberg-blue/30 hover:border-bloomberg-blue transition-all cursor-pointer px-3 md:px-3 py-3 md:py-2 min-w-[260px] md:min-w-[240px] relative group"
                         >
                           {/* Limit order indicator bar */}
                           <div className={`absolute top-0 left-0 right-0 h-0.5 ${isNearFill ? 'bg-bloomberg-orange' : 'bg-bloomberg-blue/60'} group-hover:bg-bloomberg-blue`}></div>
                           
                           {/* Header */}
-                          <div className="flex items-center justify-between mb-1.5">
-                            <div className="flex items-center gap-2">
-                              <span className="text-bloomberg-text text-[10px] font-bold">{order.asset}</span>
-                              <span className={`${directionColor} text-[9px] font-bold`}>
+                          <div className="flex items-center justify-between mb-2 md:mb-1.5">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-bloomberg-text text-sm md:text-[10px] font-bold">{order.asset}</span>
+                              <span className={`${directionColor} text-xs md:text-[9px] font-bold`}>
                                 {order.direction.toUpperCase()}
                               </span>
-                              <span className="text-bloomberg-text-dim text-[8px]">
+                              <span className="text-bloomberg-text-dim text-[10px] md:text-[8px]">
                                 {order.leverage}x
                               </span>
-                              <span className="text-bloomberg-blue text-[7px] font-bold px-1 bg-bloomberg-blue/20 border border-bloomberg-blue/30">
+                              <span className="text-bloomberg-blue text-[9px] md:text-[7px] font-bold px-1.5 md:px-1 py-0.5 bg-bloomberg-blue/20 border border-bloomberg-blue/30">
                                 LIMIT
                               </span>
                             </div>
-                            <span className={`text-[8px] font-bold px-1.5 py-0.5 ${
+                            <span className={`text-[10px] md:text-[8px] font-bold px-2 md:px-1.5 py-1 md:py-0.5 ${
                               isNearFill 
                                 ? 'bg-bloomberg-orange/20 text-bloomberg-orange border border-bloomberg-orange/30'
                                 : 'bg-bloomberg-blue/20 text-bloomberg-blue border border-bloomberg-blue/30'
@@ -3762,12 +3763,12 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                           </div>
                           
                           {/* Limit Price vs Current Price */}
-                          <div className="flex items-center justify-between text-[9px] mb-1">
+                          <div className="flex items-center justify-between text-xs md:text-[9px] mb-2 md:mb-1">
                             <div className="text-bloomberg-text-dim">
                               Limit: ${order.limitPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="text-bloomberg-text-dim text-[8px]">Current:</span>
+                              <span className="text-bloomberg-text-dim text-[10px] md:text-[8px]">Current:</span>
                               <span className={`text-bloomberg-text font-bold ${isNearFill ? 'text-bloomberg-orange animate-pulse' : ''}`}>
                                 ${order.currentPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                               </span>
@@ -3775,9 +3776,9 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                           </div>
                           
                           {/* Price difference indicator */}
-                          <div className="mb-1.5">
-                            <div className="flex items-center justify-between">
-                              <div className="text-bloomberg-text-dim text-[8px]">
+                          <div className="mb-2 md:mb-1.5">
+                            <div className="flex items-center justify-between flex-wrap gap-1">
+                              <div className="text-bloomberg-text-dim text-[10px] md:text-[8px]">
                                 {order.direction === 'Long' 
                                   ? priceDiff > 0 
                                     ? `Above limit by ${priceDiff.toFixed(2)}%`
@@ -3788,7 +3789,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                                 }
                               </div>
                               {isNearFill && (
-                                <span className="text-bloomberg-orange text-[7px] font-bold animate-pulse">
+                                <span className="text-bloomberg-orange text-[9px] md:text-[7px] font-bold animate-pulse">
                                   NEAR FILL
                                 </span>
                               )}
@@ -3796,20 +3797,20 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                           </div>
                           
                           {/* Size and Time */}
-                          <div className="flex items-center justify-between mt-1.5">
-                            <div className="text-bloomberg-text-dim text-[8px]">
+                          <div className="flex items-center justify-between mt-2 md:mt-1.5">
+                            <div className="text-bloomberg-text-dim text-[10px] md:text-[8px]">
                               Size: ${(order.size / 1000).toFixed(0)}K
                             </div>
-                            <div className="text-bloomberg-text-dim text-[7px]">
+                            <div className="text-bloomberg-text-dim text-[9px] md:text-[7px]">
                               {timeDisplay}
                             </div>
                           </div>
                           
                           {/* Automation indicator */}
                           {order.hasAutomations && (
-                            <div className="flex items-center gap-1 mt-1 pt-1 border-t border-terminal/30">
-                              <span className="w-1 h-1 bg-[#8B5CF6] rounded-full"></span>
-                              <span className="text-[#8B5CF6] text-[7px] font-bold">
+                            <div className="flex items-center gap-1 mt-2 md:mt-1 pt-2 md:pt-1 border-t border-terminal/30">
+                              <span className="w-1.5 h-1.5 md:w-1 md:h-1 bg-[#8B5CF6] rounded-full"></span>
+                              <span className="text-[#8B5CF6] text-[9px] md:text-[7px] font-bold">
                                 Has automations
                               </span>
                             </div>
