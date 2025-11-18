@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Condition List - Drag & Drop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0A0A0A;
+            color: #E0E0E0;
+            font-family: 'Courier New', 'Courier', 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #111111;
+            border: 1px solid #333333;
+            padding: 20px;
+        }
+
+        .header {
+            border-bottom: 1px solid #333333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 14px;
+            color: #E0E0E0;
+            font-weight: bold;
+        }
+
+        .header .subtitle {
+            font-size: 9px;
+            color: #999999;
+            margin-top: 4px;
+        }
+
+        .action-selector {
+            margin-bottom: 20px;
+        }
+
+        .action-selector label {
+            display: block;
+            font-size: 9px;
+            color: #999999;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px;
+            border: 1px solid #333333;
+            background: #0A0A0A;
+            color: #999999;
+            font-size: 9px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            color: #E0E0E0;
+            border-color: #8B5CF6;
+        }
+
+        .action-btn.active {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8B5CF6;
+            color: #8B5CF6;
+        }
+
+        .conditions-section {
+            margin-top: 20px;
+        }
+
+        .conditions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 9px;
+            color: #999999;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .condition-palette {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #0A0A0A;
+            border: 1px dashed #333333;
+        }
+
+        .palette-item {
+            padding: 6px 12px;
+            border: 1px solid #333333;
+            background: #111111;
+            color: #8B5CF6;
+            font-size: 8px;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .palette-item:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .palette-item:active {
+            cursor: grabbing;
+        }
+
+        .condition-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 200px;
+        }
+
+        .condition-card {
+            background: #0A0A0A;
+            border: 1px solid #333333;
+            padding: 12px;
+            position: relative;
+            transition: all 0.2s;
+            cursor: move;
+            user-select: none;
+        }
+
+        .condition-card:hover {
+            border-color: #8B5CF6;
+        }
+
+        .condition-card.dragging {
+            opacity: 0.5;
+            border-color: #8B5CF6;
+            transform: rotate(2deg);
+        }
+
+        .condition-card.drag-over {
+            border-color: #00FF88;
+            border-style: dashed;
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .condition-number {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #8B5CF6;
+            color: #0A0A0A;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-weight: bold;
+            font-size: 10px;
+            margin-right: 8px;
+        }
+
+        .condition-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .condition-description {
+            flex: 1;
+            font-size: 10px;
+            color: #E0E0E0;
+            display: flex;
+            align-items: center;
+        }
+
+        .condition-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .condition-btn {
+            padding: 4px 8px;
+            border: 1px solid #333333;
+            background: #0A0A0A;
+            color: #999999;
+            font-size: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .condition-btn:hover {
+            border-color: #8B5CF6;
+            color: #8B5CF6;
+        }
+
+        .logic-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #333333;
+        }
+
+        .logic-line {
+            flex: 1;
+            height: 1px;
+            background: #333333;
+            position: relative;
+        }
+
+        .logic-line::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -2px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid #333333;
+            border-top: 3px solid transparent;
+            border-bottom: 3px solid transparent;
+        }
+
+        .logic-toggle {
+            padding: 4px 8px;
+            border: 1px solid #333333;
+            background: #0A0A0A;
+            color: #8B5CF6;
+            font-size: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .logic-toggle:hover {
+            border-color: #8B5CF6;
+        }
+
+        .logic-toggle.or {
+            color: #00FF88;
+        }
+
+        .drop-zone {
+            min-height: 60px;
+            border: 2px dashed #333333;
+            border-radius: 4px;
+            padding: 20px;
+            text-align: center;
+            color: #666666;
+            font-size: 9px;
+            transition: all 0.2s;
+            margin: 8px 0;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.1);
+            color: #8B5CF6;
+        }
+
+        .add-condition-btn {
+            margin-top: 12px;
+            padding: 8px 16px;
+            border: 1px dashed #333333;
+            background: transparent;
+            color: #8B5CF6;
+            font-size: 9px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .add-condition-btn:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .preview-section {
+            margin-top: 20px;
+            padding: 12px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .preview-label {
+            font-size: 8px;
+            color: #999999;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .preview-text {
+            font-size: 10px;
+            color: #E0E0E0;
+            font-family: monospace;
+            line-height: 1.6;
+        }
+
+        .preview-text .action {
+            color: #FFAA00;
+        }
+
+        .preview-text .event {
+            color: #8B5CF6;
+        }
+
+        .preview-text .logic {
+            color: #999999;
+        }
+
+        .preview-text .condition {
+            color: #E0E0E0;
+        }
+
+        .group-container {
+            border: 1px solid #8B5CF6;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 8px;
+            color: #8B5CF6;
+            text-transform: uppercase;
+        }
+
+        .group-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .group-btn {
+            padding: 2px 6px;
+            border: 1px solid #8B5CF6;
+            background: transparent;
+            color: #8B5CF6;
+            font-size: 7px;
+            cursor: pointer;
+        }
+
+        .group-btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .instructions {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 9px;
+            color: #999999;
+        }
+
+        .instructions strong {
+            color: #8B5CF6;
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: #666666;
+            margin-right: 8px;
+            font-size: 12px;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Visual Condition List - Drag & Drop</h1>
+            <div class="subtitle">Full Interactive Mockup</div>
+        </div>
+
+        <div class="instructions">
+            <strong>How to use:</strong> Drag conditions to reorder them. Drag from the palette to add new conditions. 
+            Click AND/OR to toggle logic. Drag conditions into groups to create nested logic.
+        </div>
+
+        <!-- Action Selector -->
+        <div class="action-selector">
+            <label>Action</label>
+            <div class="action-buttons">
+                <button class="action-btn active" onclick="setAction(this, 'close')">Close on Event</button>
+                <button class="action-btn" onclick="setAction(this, 'reverse')">Reverse</button>
+                <button class="action-btn" onclick="setAction(this, 'increase')">Increase Size</button>
+                <button class="action-btn" onclick="setAction(this, 'reduce')">Reduce Position</button>
+            </div>
+        </div>
+
+        <!-- Condition Palette -->
+        <div class="conditions-section">
+            <div class="conditions-header">
+                <span>Available Conditions</span>
+                <span>Drag to add</span>
+            </div>
+            <div class="condition-palette">
+                <div class="palette-item" draggable="true" ondragstart="handlePaletteDrag(event, 'event')">
+                    Event Probability
+                </div>
+                <div class="palette-item" draggable="true" ondragstart="handlePaletteDrag(event, 'price')">
+                    Price Level
+                </div>
+                <div class="palette-item" draggable="true" ondragstart="handlePaletteDrag(event, 'funding')">
+                    Funding Rate
+                </div>
+                <div class="palette-item" draggable="true" ondragstart="handlePaletteDrag(event, 'oi')">
+                    Open Interest
+                </div>
+                <div class="palette-item" draggable="true" ondragstart="handlePaletteDrag(event, 'volume')">
+                    Volume
+                </div>
+            </div>
+        </div>
+
+        <!-- Conditions List -->
+        <div class="conditions-section">
+            <div class="conditions-header">
+                <span>Active Conditions</span>
+                <span id="condition-count">3 conditions</span>
+            </div>
+            <div class="condition-list" id="condition-list" 
+                 ondragover="handleDragOver(event)" 
+                 ondrop="handleDrop(event)">
+                
+                <!-- Condition 1 -->
+                <div class="condition-card" draggable="true" 
+                     ondragstart="handleDragStart(event)" 
+                     ondragend="handleDragEnd(event)"
+                     data-id="1"
+                     data-type="event">
+                    <div class="condition-content">
+                        <div class="condition-description">
+                            <span class="drag-handle">☰</span>
+                            <span class="condition-number">①</span>
+                            <span>Polymarket "BTC ETF Approval" probability ≥ 75%</span>
+                        </div>
+                        <div class="condition-actions">
+                            <button class="condition-btn" onclick="editCondition(1)">Edit</button>
+                            <button class="condition-btn" onclick="removeCondition(1)">×</button>
+                        </div>
+                    </div>
+                    <div class="logic-indicator">
+                        <div class="logic-line"></div>
+                        <button class="logic-toggle" onclick="toggleLogic(1)">AND ▼</button>
+                        <div class="logic-line"></div>
+                    </div>
+                </div>
+
+                <!-- Condition 2 -->
+                <div class="condition-card" draggable="true" 
+                     ondragstart="handleDragStart(event)" 
+                     ondragend="handleDragEnd(event)"
+                     data-id="2"
+                     data-type="price">
+                    <div class="condition-content">
+                        <div class="condition-description">
+                            <span class="drag-handle">☰</span>
+                            <span class="condition-number">②</span>
+                            <span>Price above $45,000</span>
+                        </div>
+                        <div class="condition-actions">
+                            <button class="condition-btn" onclick="editCondition(2)">Edit</button>
+                            <button class="condition-btn" onclick="removeCondition(2)">×</button>
+                        </div>
+                    </div>
+                    <div class="logic-indicator">
+                        <div class="logic-line"></div>
+                        <button class="logic-toggle" onclick="toggleLogic(2)">AND ▼</button>
+                        <div class="logic-line"></div>
+                    </div>
+                </div>
+
+                <!-- Condition 3 -->
+                <div class="condition-card" draggable="true" 
+                     ondragstart="handleDragStart(event)" 
+                     ondragend="handleDragEnd(event)"
+                     data-id="3"
+                     data-type="funding">
+                    <div class="condition-content">
+                        <div class="condition-description">
+                            <span class="drag-handle">☰</span>
+                            <span class="condition-number">③</span>
+                            <span>Funding Rate below -0.01%</span>
+                        </div>
+                        <div class="condition-actions">
+                            <button class="condition-btn" onclick="editCondition(3)">Edit</button>
+                            <button class="condition-btn" onclick="removeCondition(3)">×</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="drop-zone" 
+                 id="add-zone"
+                 ondragover="handleDragOver(event)" 
+                 ondrop="handleDrop(event)"
+                 ondragleave="handleDragLeave(event)">
+                Drop condition here to add
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section">
+            <div class="preview-label">Preview (Updates in Real-Time)</div>
+            <div class="preview-text" id="preview-text">
+                <span class="action">Close</span> SOL long position if<br>
+                <span class="event">Polymarket "BTC ETF Approval"</span><br>
+                probability <span class="condition">≥ 75%</span><br>
+                <span class="logic">AND</span> price <span class="condition">above $45,000</span><br>
+                <span class="logic">AND</span> funding rate <span class="condition">below -0.01%</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let draggedElement = null;
+        let draggedFromPalette = false;
+        let conditionIdCounter = 3;
+        const conditions = {
+            1: { type: 'event', text: 'Polymarket "BTC ETF Approval" probability ≥ 75%', logic: 'AND' },
+            2: { type: 'price', text: 'Price above $45,000', logic: 'AND' },
+            3: { type: 'funding', text: 'Funding Rate below -0.01%', logic: null }
+        };
+        let action = 'close';
+
+        const conditionTemplates = {
+            event: 'Polymarket "Event" probability ≥ 75%',
+            price: 'Price above $0',
+            funding: 'Funding Rate below 0%',
+            oi: 'Open Interest rises 5% over 24h',
+            volume: 'Volume above $0'
+        };
+
+        function setAction(btn, newAction) {
+            document.querySelectorAll('.action-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            action = newAction;
+            updatePreview();
+        }
+
+        function handlePaletteDrag(e, type) {
+            draggedFromPalette = true;
+            e.dataTransfer.effectAllowed = 'copy';
+            e.dataTransfer.setData('text/plain', type);
+        }
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            draggedFromPalette = false;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.outerHTML);
+            e.dataTransfer.setData('text/plain', e.target.dataset.id);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.drag-over').forEach(el => {
+                el.classList.remove('drag-over');
+            });
+            document.querySelectorAll('.drop-zone').forEach(el => {
+                el.classList.remove('drag-over');
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = draggedFromPalette ? 'copy' : 'move';
+            
+            const conditionList = document.getElementById('condition-list');
+            const afterElement = getDragAfterElement(conditionList, e.clientY);
+            const dragging = document.querySelector('.dragging');
+            
+            if (dragging && afterElement == null) {
+                conditionList.appendChild(dragging);
+            } else if (dragging && afterElement) {
+                conditionList.insertBefore(dragging, afterElement);
+            }
+
+            // Highlight drop zones
+            if (e.target.classList.contains('condition-list') || 
+                e.target.classList.contains('condition-card') ||
+                e.target.closest('.condition-card')) {
+                const card = e.target.closest('.condition-card') || e.target;
+                if (card && card.classList.contains('condition-card')) {
+                    card.classList.add('drag-over');
+                }
+            }
+        }
+
+        function handleDragLeave(e) {
+            e.target.classList.remove('drag-over');
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.condition-card:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            
+            if (draggedFromPalette) {
+                const type = e.dataTransfer.getData('text/plain');
+                addConditionFromPalette(type, e.target);
+            } else {
+                const id = e.dataTransfer.getData('text/plain');
+                const dragged = document.querySelector(`[data-id="${id}"]`);
+                if (dragged) {
+                    const conditionList = document.getElementById('condition-list');
+                    const afterElement = getDragAfterElement(conditionList, e.clientY);
+                    
+                    if (afterElement == null) {
+                        conditionList.appendChild(dragged);
+                    } else {
+                        conditionList.insertBefore(dragged, afterElement);
+                    }
+                }
+            }
+
+            updateConditionNumbers();
+            updatePreview();
+            handleDragEnd(e);
+        }
+
+        function addConditionFromPalette(type, dropTarget) {
+            conditionIdCounter++;
+            const id = conditionIdCounter;
+            const text = conditionTemplates[type] || `New ${type} condition`;
+            
+            conditions[id] = { type, text, logic: 'AND' };
+            
+            const conditionCard = document.createElement('div');
+            conditionCard.className = 'condition-card';
+            conditionCard.draggable = true;
+            conditionCard.dataset.id = id;
+            conditionCard.dataset.type = type;
+            conditionCard.ondragstart = handleDragStart;
+            conditionCard.ondragend = handleDragEnd;
+            
+            const conditionList = document.getElementById('condition-list');
+            const afterElement = getDragAfterElement(conditionList, 
+                dropTarget.getBoundingClientRect().top + dropTarget.getBoundingClientRect().height / 2);
+            
+            conditionCard.innerHTML = `
+                <div class="condition-content">
+                    <div class="condition-description">
+                        <span class="drag-handle">☰</span>
+                        <span class="condition-number"></span>
+                        <span>${text}</span>
+                    </div>
+                    <div class="condition-actions">
+                        <button class="condition-btn" onclick="editCondition(${id})">Edit</button>
+                        <button class="condition-btn" onclick="removeCondition(${id})">×</button>
+                    </div>
+                </div>
+                <div class="logic-indicator">
+                    <div class="logic-line"></div>
+                    <button class="logic-toggle" onclick="toggleLogic(${id})">AND ▼</button>
+                    <div class="logic-line"></div>
+                </div>
+            `;
+            
+            if (afterElement == null) {
+                conditionList.appendChild(conditionCard);
+            } else {
+                conditionList.insertBefore(conditionCard, afterElement);
+            }
+            
+            updateConditionNumbers();
+            updatePreview();
+        }
+
+        function updateConditionNumbers() {
+            const cards = document.querySelectorAll('.condition-card');
+            cards.forEach((card, index) => {
+                const number = card.querySelector('.condition-number');
+                const numbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
+                if (number) {
+                    number.textContent = numbers[index] || (index + 1);
+                }
+            });
+            document.getElementById('condition-count').textContent = `${cards.length} condition${cards.length !== 1 ? 's' : ''}`;
+        }
+
+        function toggleLogic(id) {
+            const condition = conditions[id];
+            if (condition) {
+                condition.logic = condition.logic === 'AND' ? 'OR' : 'AND';
+                const button = document.querySelector(`[data-id="${id}"] .logic-toggle`);
+                if (button) {
+                    button.textContent = condition.logic + ' ▼';
+                    button.classList.toggle('or', condition.logic === 'OR');
+                }
+            }
+            updatePreview();
+        }
+
+        function editCondition(id) {
+            const condition = conditions[id];
+            if (condition) {
+                const newText = prompt('Edit condition:', condition.text);
+                if (newText !== null) {
+                    condition.text = newText;
+                    const card = document.querySelector(`[data-id="${id}"]`);
+                    if (card) {
+                        const desc = card.querySelector('.condition-description span:last-child');
+                        if (desc) desc.textContent = newText;
+                    }
+                    updatePreview();
+                }
+            }
+        }
+
+        function removeCondition(id) {
+            if (confirm('Remove this condition?')) {
+                const card = document.querySelector(`[data-id="${id}"]`);
+                if (card) {
+                    card.remove();
+                    delete conditions[id];
+                    updateConditionNumbers();
+                    updatePreview();
+                }
+            }
+        }
+
+        function updatePreview() {
+            const cards = Array.from(document.querySelectorAll('.condition-card'));
+            const actionText = {
+                'close': 'Close',
+                'reverse': 'Reverse',
+                'increase': 'Increase',
+                'reduce': 'Reduce'
+            }[action] || 'Close';
+            
+            let preview = `<span class="action">${actionText}</span> SOL long position if<br>`;
+            
+            cards.forEach((card, index) => {
+                const id = card.dataset.id;
+                const condition = conditions[id];
+                if (condition) {
+                    if (index > 0) {
+                        const logic = condition.logic || 'AND';
+                        preview += `<span class="logic">${logic}</span> `;
+                    }
+                    preview += `<span class="condition">${condition.text}</span><br>`;
+                }
+            });
+            
+            document.getElementById('preview-text').innerHTML = preview;
+        }
+
+        // Initialize
+        updateConditionNumbers();
+        updatePreview();
+    </script>
+</body>
+</html>
+

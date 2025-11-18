@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IFTTT Text Command Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0A0A0A;
+            color: #E0E0E0;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0A0A0A 0%, #111111 100%);
+            padding: 40px 20px;
+        }
+
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8B5CF6 0%, #00FF88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .header .subtitle {
+            font-size: 14px;
+            color: #666666;
+        }
+
+        /* Command Interface */
+        .command-interface {
+            background: #111111;
+            border: 1px solid #222222;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .command-prompt {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .prompt-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #8B5CF6;
+        }
+
+        .command-input-container {
+            position: relative;
+            flex: 1;
+        }
+
+        .command-input {
+            width: 100%;
+            background: #0A0A0A;
+            border: 2px solid #333333;
+            border-radius: 8px;
+            padding: 16px 20px;
+            color: #E0E0E0;
+            font-family: 'SF Mono', monospace;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .command-input:focus {
+            border-color: #8B5CF6;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .command-input::placeholder {
+            color: #444444;
+        }
+
+        /* Autocomplete Dropdown */
+        .autocomplete {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #0A0A0A;
+            border: 1px solid #333333;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .autocomplete.active {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid #222222;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.selected {
+            background: rgba(139, 92, 246, 0.1);
+            border-left: 3px solid #8B5CF6;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-category {
+            font-size: 10px;
+            color: #8B5CF6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            padding: 8px 20px;
+            background: #111111;
+            border-bottom: 1px solid #222222;
+        }
+
+        .autocomplete-title {
+            font-size: 13px;
+            color: #E0E0E0;
+            font-weight: 600;
+        }
+
+        .autocomplete-desc {
+            font-size: 11px;
+            color: #666666;
+            margin-top: 2px;
+        }
+
+        .autocomplete-syntax {
+            font-size: 11px;
+            color: #8B5CF6;
+            font-family: monospace;
+            margin-left: auto;
+        }
+
+        /* Command Preview */
+        .command-preview {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 8px;
+            border-left: 4px solid #8B5CF6;
+        }
+
+        .preview-label {
+            font-size: 10px;
+            color: #8B5CF6;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .preview-text {
+            font-size: 14px;
+            color: #E0E0E0;
+            font-family: 'SF Mono', monospace;
+            line-height: 1.8;
+        }
+
+        .preview-text .keyword {
+            color: #8B5CF6;
+            font-weight: 600;
+        }
+
+        .preview-text .action-keyword {
+            color: #FFAA00;
+            font-weight: 600;
+        }
+
+        .preview-text .value {
+            color: #00FF88;
+        }
+
+        .preview-text .logic {
+            color: #666666;
+            font-style: italic;
+        }
+
+        /* Examples Section */
+        .examples-section {
+            margin-top: 40px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            color: #8B5CF6;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .example-card {
+            padding: 16px;
+            background: #0A0A0A;
+            border: 1px solid #222222;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .example-card:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .example-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #E0E0E0;
+            margin-bottom: 8px;
+        }
+
+        .example-code {
+            font-size: 11px;
+            color: #999999;
+            font-family: monospace;
+            line-height: 1.6;
+        }
+
+        /* Syntax Highlighting */
+        .syntax-hint {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(139, 92, 246, 0.05);
+            border-left: 3px solid #8B5CF6;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #999999;
+        }
+
+        .syntax-hint strong {
+            color: #8B5CF6;
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 6px;
+            font-size: 10px;
+            color: #00FF88;
+            margin-top: 12px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #00FF88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Strategy Builder</h1>
+                <div class="subtitle">Type your strategy in natural language</div>
+            </div>
+
+            <!-- Command Interface -->
+            <div class="command-interface">
+                <div class="command-prompt">
+                    <span class="prompt-text">If</span>
+                    <div class="command-input-container">
+                        <input 
+                            type="text" 
+                            class="command-input" 
+                            id="command-input"
+                            placeholder="Polymarket 'BTC ETF Approval' probability ≥ 75% and price above $45,000 then close SOL long position"
+                            autocomplete="off"
+                            spellcheck="false"
+                        />
+                        <div class="autocomplete" id="autocomplete">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Syntax Hint -->
+                <div class="syntax-hint">
+                    <strong>Tip:</strong> Type "if" followed by triggers, then "then" followed by actions. 
+                    Use "and" or "or" to combine conditions. Press <strong>Tab</strong> to autocomplete.
+                </div>
+
+                <!-- Status -->
+                <div class="status-indicator" id="status" style="display: none;">
+                    <div class="status-dot"></div>
+                    <span>Valid strategy</span>
+                </div>
+
+                <!-- Command Preview -->
+                <div class="command-preview" id="preview" style="display: none;">
+                    <div class="preview-label">Command Preview</div>
+                    <div class="preview-text" id="preview-text"></div>
+                </div>
+            </div>
+
+            <!-- Examples -->
+            <div class="examples-section">
+                <div class="section-title">Quick Examples</div>
+                <div class="example-grid">
+                    <div class="example-card" onclick="fillExample(0)">
+                        <div class="example-title">Event-Based Close</div>
+                        <div class="example-code">If Polymarket "Event" probability ≥ 75% then close position</div>
+                    </div>
+                    <div class="example-card" onclick="fillExample(1)">
+                        <div class="example-title">Funding Rate Strategy</div>
+                        <div class="example-code">If funding rate below -0.01% then long ETH</div>
+                    </div>
+                    <div class="example-card" onclick="fillExample(2)">
+                        <div class="example-title">Multi-Condition</div>
+                        <div class="example-code">If price above $45K and OI rises 5% then increase position</div>
+                    </div>
+                    <div class="example-card" onclick="fillExample(3)">
+                        <div class="example-title">Complex Strategy</div>
+                        <div class="example-code">If event ≥ 70% and price > $40K and funding < 0% then close 50%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const examples = [
+            'If Polymarket "BTC ETF Approval" probability ≥ 75% then close SOL long position',
+            'If funding rate below -0.01% then long ETH with 4x leverage',
+            'If price above $45,000 and open interest rises 5% over 24h then increase position by 25%',
+            'If Polymarket "Event" probability ≥ 70% and price above $40,000 and funding rate below 0% then close 50% of position'
+        ];
+
+        const autocompleteOptions = {
+            triggers: [
+                { title: 'Polymarket Event', desc: 'Monitor event probability', syntax: 'Polymarket "Event Name" probability ≥ X%' },
+                { title: 'Price Level', desc: 'Monitor price threshold', syntax: 'price above/below $X' },
+                { title: 'Funding Rate', desc: 'Monitor funding rate', syntax: 'funding rate above/below X%' },
+                { title: 'Open Interest', desc: 'Monitor OI changes', syntax: 'open interest rises/falls X% over Yh' },
+                { title: 'Volume', desc: 'Monitor trading volume', syntax: 'volume above/below $X' },
+                { title: 'Time-Based', desc: 'Schedule trigger', syntax: 'at time HH:MM' }
+            ],
+            actions: [
+                { title: 'Close Position', desc: 'Exit existing position', syntax: 'close position [ID] [%]' },
+                { title: 'Open Position', desc: 'Enter new position', syntax: 'long/short ASSET with Xx leverage' },
+                { title: 'Modify Position', desc: 'Adjust position size', syntax: 'increase/decrease position by X%' },
+                { title: 'Set Stop Loss', desc: 'Add stop loss', syntax: 'set stop loss at $X' },
+                { title: 'Reverse Position', desc: 'Flip direction', syntax: 'reverse position' }
+            ],
+            logic: [
+                { title: 'AND', desc: 'All conditions must be true', syntax: 'and' },
+                { title: 'OR', desc: 'Any condition can be true', syntax: 'or' }
+            ]
+        };
+
+        const input = document.getElementById('command-input');
+        const autocomplete = document.getElementById('autocomplete');
+        const preview = document.getElementById('preview');
+        const previewText = document.getElementById('preview-text');
+        const status = document.getElementById('status');
+
+        let selectedIndex = -1;
+
+        input.addEventListener('input', handleInput);
+        input.addEventListener('keydown', handleKeyDown);
+        input.addEventListener('focus', showAutocomplete);
+
+        function handleInput(e) {
+            const value = e.target.value.toLowerCase();
+            updateAutocomplete(value);
+            updatePreview(e.target.value);
+            updateStatus(e.target.value);
+        }
+
+        function handleKeyDown(e) {
+            const items = autocomplete.querySelectorAll('.autocomplete-item');
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                updateSelection(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelection(items);
+            } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                e.preventDefault();
+                selectAutocompleteItem(items[selectedIndex]);
+            } else if (e.key === 'Escape') {
+                hideAutocomplete();
+            } else if (e.key === 'Tab' && items.length > 0) {
+                e.preventDefault();
+                if (selectedIndex < 0) selectedIndex = 0;
+                selectAutocompleteItem(items[selectedIndex]);
+            }
+        }
+
+        function updateAutocomplete(value) {
+            if (!value.trim()) {
+                showAllOptions();
+                return;
+            }
+
+            const words = value.split(' ');
+            const lastWord = words[words.length - 1].toLowerCase();
+            const hasThen = value.toLowerCase().includes('then');
+            const category = hasThen ? 'actions' : 'triggers';
+
+            let matches = [];
+            
+            if (hasThen) {
+                matches = autocompleteOptions.actions.filter(opt => 
+                    opt.title.toLowerCase().includes(lastWord) ||
+                    opt.syntax.toLowerCase().includes(lastWord)
+                );
+            } else {
+                matches = autocompleteOptions.triggers.filter(opt => 
+                    opt.title.toLowerCase().includes(lastWord) ||
+                    opt.syntax.toLowerCase().includes(lastWord)
+                );
+                
+                // Also show logic operators if we have conditions
+                if (words.length > 2) {
+                    matches = matches.concat(autocompleteOptions.logic);
+                }
+            }
+
+            renderAutocomplete(matches, category);
+            selectedIndex = -1;
+        }
+
+        function showAllOptions() {
+            const value = input.value.toLowerCase();
+            const hasThen = value.includes('then');
+            const category = hasThen ? 'actions' : 'triggers';
+            const options = hasThen ? autocompleteOptions.actions : autocompleteOptions.triggers;
+            renderAutocomplete(options, category);
+        }
+
+        function renderAutocomplete(items, category) {
+            if (items.length === 0) {
+                hideAutocomplete();
+                return;
+            }
+
+            autocomplete.innerHTML = `
+                <div class="autocomplete-category">${category.toUpperCase()}</div>
+                ${items.map((item, index) => `
+                    <div class="autocomplete-item" data-index="${index}" onclick="selectAutocompleteItem(this)">
+                        <div>
+                            <div class="autocomplete-title">${item.title}</div>
+                            <div class="autocomplete-desc">${item.desc}</div>
+                        </div>
+                        <div class="autocomplete-syntax">${item.syntax}</div>
+                    </div>
+                `).join('')}
+            `;
+            autocomplete.classList.add('active');
+        }
+
+        function updateSelection(items) {
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedIndex);
+            });
+        }
+
+        function selectAutocompleteItem(item) {
+            const text = item.querySelector('.autocomplete-title').textContent;
+            const syntax = item.querySelector('.autocomplete-syntax').textContent;
+            
+            const currentValue = input.value;
+            const words = currentValue.split(' ');
+            words[words.length - 1] = syntax.split(' ')[0];
+            
+            input.value = words.join(' ') + ' ';
+            input.focus();
+            hideAutocomplete();
+            updatePreview(input.value);
+        }
+
+        function showAutocomplete() {
+            if (input.value.trim()) {
+                updateAutocomplete(input.value);
+            } else {
+                showAllOptions();
+            }
+        }
+
+        function hideAutocomplete() {
+            autocomplete.classList.remove('active');
+            selectedIndex = -1;
+        }
+
+        function updatePreview(value) {
+            if (!value.trim()) {
+                preview.style.display = 'none';
+                return;
+            }
+
+            preview.style.display = 'block';
+            
+            // Simple syntax highlighting
+            let html = value
+                .replace(/\bif\b/gi, '<span class="keyword">if</span>')
+                .replace(/\bthen\b/gi, '<span class="action-keyword">then</span>')
+                .replace(/\band\b/gi, '<span class="logic">and</span>')
+                .replace(/\bor\b/gi, '<span class="logic">or</span>')
+                .replace(/(\d+%)/g, '<span class="value">$1</span>')
+                .replace(/(\$[\d,]+)/g, '<span class="value">$1</span>')
+                .replace(/(probability|price|funding|OI|volume)/gi, '<span class="keyword">$1</span>');
+            
+            previewText.innerHTML = html;
+        }
+
+        function updateStatus(value) {
+            const hasIf = value.toLowerCase().includes('if');
+            const hasThen = value.toLowerCase().includes('then');
+            const hasCondition = value.split(' ').length > 2;
+            
+            if (hasIf && hasThen && hasCondition) {
+                status.style.display = 'flex';
+            } else {
+                status.style.display = 'none';
+            }
+        }
+
+        function fillExample(index) {
+            input.value = examples[index];
+            input.focus();
+            updatePreview(input.value);
+            updateStatus(input.value);
+            hideAutocomplete();
+        }
+
+        // Close autocomplete when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !autocomplete.contains(e.target)) {
+                hideAutocomplete();
+            }
+        });
+    </script>
+</body>
+</html>
+

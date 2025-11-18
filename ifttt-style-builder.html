@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IFTTT-Style Strategy Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0A0A0A;
+            color: #E0E0E0;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0A0A0A 0%, #111111 100%);
+            position: relative;
+            padding: 40px 20px;
+        }
+
+        .main-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8B5CF6 0%, #00FF88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .header .subtitle {
+            font-size: 13px;
+            color: #666666;
+        }
+
+        /* IFTTT Flow Container */
+        .ifttt-flow {
+            background: #111111;
+            border: 1px solid #222222;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        /* IF Section */
+        .if-section {
+            margin-bottom: 40px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            color: #8B5CF6;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, #8B5CF6, #7C3AED);
+            border-radius: 2px;
+        }
+
+        /* Trigger/Action Cards */
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .flow-card {
+            background: linear-gradient(135deg, #0A0A0A 0%, #111111 100%);
+            border: 2px solid #222222;
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .flow-card:hover {
+            border-color: #8B5CF6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2);
+        }
+
+        .flow-card.add-new {
+            border-style: dashed;
+            border-color: #333333;
+            background: transparent;
+            text-align: center;
+            padding: 32px;
+        }
+
+        .flow-card.add-new:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 600;
+            color: #8B5CF6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-type.action {
+            background: rgba(255, 170, 0, 0.15);
+            border-color: rgba(255, 170, 0, 0.3);
+            color: #FFAA00;
+        }
+
+        .card-remove {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #333333;
+            background: transparent;
+            color: #666666;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .card-remove:hover {
+            border-color: #FF4444;
+            color: #FF4444;
+            background: rgba(255, 68, 68, 0.1);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #E0E0E0;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            font-size: 12px;
+            color: #999999;
+            line-height: 1.6;
+        }
+
+        .card-details {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #222222;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+
+        .detail-label {
+            color: #666666;
+        }
+
+        .detail-value {
+            color: #E0E0E0;
+            font-weight: 600;
+        }
+
+        /* Connector Arrow */
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .connector-line {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #8B5CF6, transparent);
+            position: relative;
+        }
+
+        .connector-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 12px solid #8B5CF6;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            right: 0;
+        }
+
+        .connector-label {
+            position: absolute;
+            background: #0A0A0A;
+            padding: 4px 12px;
+            font-size: 10px;
+            color: #8B5CF6;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* THEN Section */
+        .then-section {
+            margin-top: 40px;
+        }
+
+        /* Add Button */
+        .add-button {
+            width: 100%;
+            padding: 20px;
+            border: 2px dashed #333333;
+            background: transparent;
+            color: #8B5CF6;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .add-button:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        /* Modal for Adding Cards */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #111111;
+            border: 1px solid #222222;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #E0E0E0;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #333333;
+            background: transparent;
+            color: #666666;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            border-color: #FF4444;
+            color: #FF4444;
+        }
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .option-card {
+            padding: 16px;
+            border: 1px solid #222222;
+            background: #0A0A0A;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-card:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .option-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #E0E0E0;
+            margin-bottom: 4px;
+        }
+
+        .option-desc {
+            font-size: 10px;
+            color: #666666;
+        }
+
+        /* Preview Section */
+        .preview-section {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(0, 255, 136, 0.05) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            margin-top: 40px;
+        }
+
+        .preview-label {
+            font-size: 11px;
+            color: #8B5CF6;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .preview-text {
+            font-size: 14px;
+            color: #E0E0E0;
+            font-family: 'SF Mono', monospace;
+            line-height: 2;
+        }
+
+        .preview-text .if {
+            color: #8B5CF6;
+            font-weight: 600;
+        }
+
+        .preview-text .then {
+            color: #FFAA00;
+            font-weight: 600;
+        }
+
+        .preview-text .condition {
+            color: #E0E0E0;
+        }
+
+        .preview-text .logic {
+            color: #666666;
+            font-style: italic;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .flow-card {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Create Automation</h1>
+                <div class="subtitle">Build powerful trading strategies with simple triggers and actions</div>
+            </div>
+
+            <!-- IFTTT Flow -->
+            <div class="ifttt-flow">
+                <!-- IF Section -->
+                <div class="if-section">
+                    <div class="section-label">If</div>
+                    <div class="card-container">
+                        <!-- Trigger Card 1 -->
+                        <div class="flow-card">
+                            <div class="card-header">
+                                <div class="card-type">Trigger</div>
+                                <button class="card-remove" onclick="removeCard(this)">×</button>
+                            </div>
+                            <div class="card-title">Polymarket Event</div>
+                            <div class="card-description">Monitor event probability and trigger when threshold is reached</div>
+                            <div class="card-details">
+                                <div class="detail-row">
+                                    <span class="detail-label">Event:</span>
+                                    <span class="detail-value">BTC ETF Approval</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Probability:</span>
+                                    <span class="detail-value">≥ 75%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add AND/OR Logic -->
+                        <div class="connector">
+                            <div class="connector-line">
+                                <div class="connector-arrow"></div>
+                                <div class="connector-label">AND</div>
+                            </div>
+                        </div>
+
+                        <!-- Trigger Card 2 -->
+                        <div class="flow-card">
+                            <div class="card-header">
+                                <div class="card-type">Trigger</div>
+                                <button class="card-remove" onclick="removeCard(this)">×</button>
+                            </div>
+                            <div class="card-title">Price Level</div>
+                            <div class="card-description">Monitor price and trigger when threshold is crossed</div>
+                            <div class="card-details">
+                                <div class="detail-row">
+                                    <span class="detail-label">Asset:</span>
+                                    <span class="detail-value">SOL</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Condition:</span>
+                                    <span class="detail-value">Above $45,000</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add More Triggers -->
+                        <button class="flow-card add-new" onclick="openModal('trigger')">
+                            <div style="font-size: 24px; color: #8B5CF6; margin-bottom: 8px;">+</div>
+                            <div style="color: #666666; font-size: 12px;">Add Trigger</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- THEN Section -->
+                <div class="then-section">
+                    <div class="section-label">Then</div>
+                    <div class="card-container">
+                        <!-- Action Card -->
+                        <div class="flow-card">
+                            <div class="card-header">
+                                <div class="card-type action">Action</div>
+                                <button class="card-remove" onclick="removeCard(this)">×</button>
+                            </div>
+                            <div class="card-title">Close Position</div>
+                            <div class="card-description">Close the specified position when triggers are met</div>
+                            <div class="card-details">
+                                <div class="detail-row">
+                                    <span class="detail-label">Position:</span>
+                                    <span class="detail-value">SOL Long #1234</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Amount:</span>
+                                    <span class="detail-value">100%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add More Actions -->
+                        <button class="flow-card add-new" onclick="openModal('action')">
+                            <div style="font-size: 24px; color: #FFAA00; margin-bottom: 8px;">+</div>
+                            <div style="color: #666666; font-size: 12px;">Add Action</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <div class="preview-label">Command Preview</div>
+                <div class="preview-text">
+                    <span class="if">IF</span> Polymarket "BTC ETF Approval" probability <span class="condition">≥ 75%</span><br>
+                    <span class="logic">AND</span> Price <span class="condition">above $45,000</span><br>
+                    <span class="then">THEN</span> Close SOL long position <span class="condition">#1234</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title">Add Trigger</div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="option-grid" id="option-grid">
+                <!-- Options will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const triggerOptions = [
+            { title: 'Polymarket Event', desc: 'Monitor event probability' },
+            { title: 'Price Level', desc: 'Monitor price threshold' },
+            { title: 'Funding Rate', desc: 'Monitor funding rate' },
+            { title: 'Open Interest', desc: 'Monitor OI changes' },
+            { title: 'Time-Based', desc: 'Schedule-based trigger' },
+            { title: 'Volume', desc: 'Monitor trading volume' }
+        ];
+
+        const actionOptions = [
+            { title: 'Close Position', desc: 'Exit existing position' },
+            { title: 'Open Position', desc: 'Enter new position' },
+            { title: 'Modify Position', desc: 'Adjust position size' },
+            { title: 'Set Stop Loss', desc: 'Add stop loss order' },
+            { title: 'Set Take Profit', desc: 'Add take profit order' },
+            { title: 'Reverse Position', desc: 'Flip position direction' }
+        ];
+
+        function openModal(type) {
+            const modal = document.getElementById('modal');
+            const title = document.getElementById('modal-title');
+            const grid = document.getElementById('option-grid');
+            
+            title.textContent = `Add ${type === 'trigger' ? 'Trigger' : 'Action'}`;
+            const options = type === 'trigger' ? triggerOptions : actionOptions;
+            
+            grid.innerHTML = options.map(opt => `
+                <div class="option-card" onclick="selectOption('${opt.title}', '${type}')">
+                    <div class="option-title">${opt.title}</div>
+                    <div class="option-desc">${opt.desc}</div>
+                </div>
+            `).join('');
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function selectOption(title, type) {
+            alert(`Would add ${type}: ${title}`);
+            closeModal();
+        }
+
+        function removeCard(btn) {
+            if (confirm('Remove this item?')) {
+                btn.closest('.flow-card').remove();
+            }
+        }
+
+        // Close modal on background click
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
+

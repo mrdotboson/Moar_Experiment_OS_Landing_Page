@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy Workflow Builder - n8n Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0A0A0A;
+            color: #E0E0E0;
+            font-family: 'Courier New', 'Courier', 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #111111;
+            border-right: 1px solid #333333;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .sidebar-header h1 {
+            font-size: 12px;
+            color: #8B5CF6;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header .subtitle {
+            font-size: 8px;
+            color: #666666;
+        }
+
+        .node-categories {
+            padding: 12px;
+        }
+
+        .category {
+            margin-bottom: 16px;
+        }
+
+        .category-title {
+            font-size: 9px;
+            color: #999999;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            padding: 4px 8px;
+            background: #0A0A0A;
+        }
+
+        .node-item {
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            background: #0A0A0A;
+            border: 1px solid #333333;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s;
+            font-size: 9px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .node-item:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .node-item:active {
+            cursor: grabbing;
+        }
+
+        .node-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .node-icon.trigger { background: #8B5CF6; color: #0A0A0A; }
+        .node-icon.condition { background: #00FF88; color: #0A0A0A; }
+        .node-icon.action { background: #FFAA00; color: #0A0A0A; }
+        .node-icon.data { background: #4488FF; color: #0A0A0A; }
+
+        /* Canvas */
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #0A0A0A;
+            background-image: 
+                linear-gradient(#111111 1px, transparent 1px),
+                linear-gradient(90deg, #111111 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .canvas {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-origin: 0 0;
+        }
+
+        .workflow-node {
+            position: absolute;
+            min-width: 200px;
+            background: #111111;
+            border: 2px solid #333333;
+            border-radius: 4px;
+            cursor: move;
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .workflow-node:hover {
+            border-color: #8B5CF6;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+        }
+
+        .workflow-node.selected {
+            border-color: #8B5CF6;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+        }
+
+        .workflow-node.dragging {
+            opacity: 0.8;
+            z-index: 1000;
+        }
+
+        .node-header {
+            padding: 8px 12px;
+            background: #0A0A0A;
+            border-bottom: 1px solid #333333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .node-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .node-title {
+            font-size: 9px;
+            font-weight: bold;
+            color: #E0E0E0;
+        }
+
+        .node-close {
+            width: 16px;
+            height: 16px;
+            border: 1px solid #333333;
+            background: transparent;
+            color: #999999;
+            cursor: pointer;
+            font-size: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .node-close:hover {
+            border-color: #FF4444;
+            color: #FF4444;
+        }
+
+        .node-body {
+            padding: 12px;
+        }
+
+        .node-input {
+            margin-bottom: 8px;
+        }
+
+        .node-input label {
+            display: block;
+            font-size: 8px;
+            color: #999999;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .node-input input,
+        .node-input select {
+            width: 100%;
+            padding: 6px;
+            background: #0A0A0A;
+            border: 1px solid #333333;
+            color: #E0E0E0;
+            font-size: 9px;
+            font-family: inherit;
+        }
+
+        .node-input input:focus,
+        .node-input select:focus {
+            outline: none;
+            border-color: #8B5CF6;
+        }
+
+        /* Connection Points */
+        .connection-point {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #333333;
+            border: 2px solid #0A0A0A;
+            cursor: crosshair;
+            z-index: 10;
+            transition: all 0.2s;
+        }
+
+        .connection-point:hover {
+            background: #8B5CF6;
+            transform: scale(1.3);
+        }
+
+        .connection-point.input {
+            left: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .connection-point.output {
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .connection-point.connected {
+            background: #8B5CF6;
+        }
+
+        /* SVG Connections */
+        .connections-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .connection-line {
+            stroke: #8B5CF6;
+            stroke-width: 2;
+            fill: none;
+            pointer-events: stroke;
+        }
+
+        .connection-line.active {
+            stroke: #00FF88;
+            stroke-width: 3;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .toolbar-btn {
+            padding: 8px 12px;
+            background: #111111;
+            border: 1px solid #333333;
+            color: #E0E0E0;
+            font-size: 9px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toolbar-btn:hover {
+            border-color: #8B5CF6;
+            color: #8B5CF6;
+        }
+
+        /* Minimap */
+        .minimap {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            width: 200px;
+            height: 150px;
+            background: #111111;
+            border: 1px solid #333333;
+            z-index: 100;
+            opacity: 0.8;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 24px;
+            background: #111111;
+            border-top: 1px solid #333333;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 8px;
+            color: #999999;
+            z-index: 100;
+        }
+
+        .status-item {
+            margin-right: 16px;
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: absolute;
+            background: #111111;
+            border: 1px solid #333333;
+            padding: 4px 0;
+            z-index: 1000;
+            min-width: 150px;
+        }
+
+        .context-menu-item {
+            padding: 8px 12px;
+            font-size: 9px;
+            color: #E0E0E0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8B5CF6;
+        }
+
+        /* Preview Panel */
+        .preview-panel {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(17, 17, 17, 0.95);
+            border: 1px solid #333333;
+            padding: 12px;
+            max-width: 300px;
+            z-index: 100;
+            font-size: 9px;
+        }
+
+        .preview-panel h3 {
+            font-size: 10px;
+            color: #8B5CF6;
+            margin-bottom: 8px;
+        }
+
+        .preview-text {
+            color: #999999;
+            font-family: monospace;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>STRATEGY BUILDER</h1>
+                <div class="subtitle">Drag nodes to canvas</div>
+            </div>
+            
+            <div class="node-categories">
+                <div class="category">
+                    <div class="category-title">Triggers</div>
+                    <div class="node-item" draggable="true" data-type="trigger" data-node="polymarket-event">
+                        <div class="node-icon trigger">T</div>
+                        <span>Polymarket Event</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="trigger" data-node="price-threshold">
+                        <div class="node-icon trigger">T</div>
+                        <span>Price Threshold</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="trigger" data-node="funding-rate">
+                        <div class="node-icon trigger">T</div>
+                        <span>Funding Rate</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="trigger" data-node="time-based">
+                        <div class="node-icon trigger">T</div>
+                        <span>Time-Based</span>
+                    </div>
+                </div>
+
+                <div class="category">
+                    <div class="category-title">Conditions</div>
+                    <div class="node-item" draggable="true" data-type="condition" data-node="if-then">
+                        <div class="node-icon condition">C</div>
+                        <span>If/Then</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="condition" data-node="compare">
+                        <div class="node-icon condition">C</div>
+                        <span>Compare Values</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="condition" data-node="filter">
+                        <div class="node-icon condition">C</div>
+                        <span>Filter Data</span>
+                    </div>
+                </div>
+
+                <div class="category">
+                    <div class="category-title">Actions</div>
+                    <div class="node-item" draggable="true" data-type="action" data-node="open-position">
+                        <div class="node-icon action">A</div>
+                        <span>Open Position</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="action" data-node="close-position">
+                        <div class="node-icon action">A</div>
+                        <span>Close Position</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="action" data-node="modify-position">
+                        <div class="node-icon action">A</div>
+                        <span>Modify Position</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="action" data-node="set-stop-loss">
+                        <div class="node-icon action">A</div>
+                        <span>Set Stop Loss</span>
+                    </div>
+                </div>
+
+                <div class="category">
+                    <div class="category-title">Data</div>
+                    <div class="node-item" draggable="true" data-type="data" data-node="get-price">
+                        <div class="node-icon data">D</div>
+                        <span>Get Price</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="data" data-node="get-funding">
+                        <div class="node-icon data">D</div>
+                        <span>Get Funding Rate</span>
+                    </div>
+                    <div class="node-item" draggable="true" data-type="data" data-node="get-oi">
+                        <div class="node-icon data">D</div>
+                        <span>Get Open Interest</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas -->
+        <div class="canvas-container">
+            <svg class="connections-layer" id="connections-layer"></svg>
+            <div class="canvas" id="canvas"></div>
+            
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <button class="toolbar-btn" onclick="zoomIn()">Zoom +</button>
+                <button class="toolbar-btn" onclick="zoomOut()">Zoom -</button>
+                <button class="toolbar-btn" onclick="resetView()">Reset</button>
+                <button class="toolbar-btn" onclick="executeWorkflow()" style="background: #8B5CF6; color: #0A0A0A; font-weight: bold;">Execute</button>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="preview-panel" id="preview-panel" style="display: none;">
+                <h3>Workflow Preview</h3>
+                <div class="preview-text" id="preview-text"></div>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span class="status-item">Nodes: <span id="node-count">0</span></span>
+                <span class="status-item">Connections: <span id="connection-count">0</span></span>
+                <span class="status-item">Zoom: <span id="zoom-level">100%</span></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let nodeIdCounter = 0;
+        let nodes = [];
+        let connections = [];
+        let selectedNode = null;
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+        let connectingFrom = null;
+        let canvasScale = 1;
+        let canvasOffset = { x: 0, y: 0 };
+
+        const nodeTemplates = {
+            'polymarket-event': {
+                title: 'Polymarket Event',
+                type: 'trigger',
+                inputs: [
+                    { label: 'Event Name', type: 'text', value: 'BTC ETF Approval' },
+                    { label: 'Probability Threshold', type: 'number', value: 75 }
+                ]
+            },
+            'price-threshold': {
+                title: 'Price Threshold',
+                type: 'trigger',
+                inputs: [
+                    { label: 'Asset', type: 'text', value: 'SOL' },
+                    { label: 'Direction', type: 'select', value: 'above', options: ['above', 'below'] },
+                    { label: 'Price', type: 'number', value: 45000 }
+                ]
+            },
+            'funding-rate': {
+                title: 'Funding Rate',
+                type: 'trigger',
+                inputs: [
+                    { label: 'Direction', type: 'select', value: 'below', options: ['above', 'below'] },
+                    { label: 'Rate', type: 'text', value: '-0.01%' }
+                ]
+            },
+            'if-then': {
+                title: 'If/Then',
+                type: 'condition',
+                inputs: [
+                    { label: 'Condition', type: 'text', value: 'Event probability ≥ 75%' }
+                ]
+            },
+            'open-position': {
+                title: 'Open Position',
+                type: 'action',
+                inputs: [
+                    { label: 'Asset', type: 'text', value: 'SOL' },
+                    { label: 'Direction', type: 'select', value: 'Long', options: ['Long', 'Short'] },
+                    { label: 'Size', type: 'text', value: '$10,000' },
+                    { label: 'Leverage', type: 'number', value: 4 }
+                ]
+            },
+            'close-position': {
+                title: 'Close Position',
+                type: 'action',
+                inputs: [
+                    { label: 'Position ID', type: 'text', value: 'auto' },
+                    { label: 'Percentage', type: 'number', value: 100 }
+                ]
+            }
+        };
+
+        // Make sidebar nodes draggable
+        document.querySelectorAll('.node-item').forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('node-type', item.dataset.node);
+                e.dataTransfer.setData('node-category', item.dataset.type);
+            });
+        });
+
+        // Canvas drop handler
+        const canvas = document.getElementById('canvas');
+        canvas.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        canvas.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const nodeType = e.dataTransfer.getData('node-type');
+            const nodeCategory = e.dataTransfer.getData('node-category');
+            
+            if (nodeType) {
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left - canvasOffset.x) / canvasScale;
+                const y = (e.clientY - rect.top - canvasOffset.y) / canvasScale;
+                addNode(nodeType, nodeCategory, x, y);
+            }
+        });
+
+        function addNode(nodeType, category, x, y) {
+            const template = nodeTemplates[nodeType];
+            if (!template) return;
+
+            nodeIdCounter++;
+            const node = {
+                id: nodeIdCounter,
+                type: nodeType,
+                category: category,
+                title: template.title,
+                x: x,
+                y: y,
+                inputs: template.inputs || []
+            };
+
+            nodes.push(node);
+            renderNode(node);
+            updateStatus();
+        }
+
+        function renderNode(node) {
+            const nodeEl = document.createElement('div');
+            nodeEl.className = 'workflow-node';
+            nodeEl.dataset.nodeId = node.id;
+            nodeEl.style.left = node.x + 'px';
+            nodeEl.style.top = node.y + 'px';
+
+            const header = document.createElement('div');
+            header.className = 'node-header';
+            header.innerHTML = `
+                <div class="node-header-left">
+                    <div class="node-icon ${node.category}">${node.category[0].toUpperCase()}</div>
+                    <div class="node-title">${node.title}</div>
+                </div>
+                <button class="node-close" onclick="removeNode(${node.id})">×</button>
+            `;
+
+            const body = document.createElement('div');
+            body.className = 'node-body';
+            
+            node.inputs.forEach((input, index) => {
+                const inputDiv = document.createElement('div');
+                inputDiv.className = 'node-input';
+                
+                const label = document.createElement('label');
+                label.textContent = input.label;
+                
+                let inputEl;
+                if (input.type === 'select') {
+                    inputEl = document.createElement('select');
+                    input.options.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt;
+                        option.textContent = opt;
+                        if (opt === input.value) option.selected = true;
+                        inputEl.appendChild(option);
+                    });
+                } else {
+                    inputEl = document.createElement('input');
+                    inputEl.type = input.type;
+                    inputEl.value = input.value;
+                }
+                
+                inputEl.addEventListener('change', () => {
+                    node.inputs[index].value = inputEl.value;
+                    updatePreview();
+                });
+                
+                inputDiv.appendChild(label);
+                inputDiv.appendChild(inputEl);
+                body.appendChild(inputDiv);
+            });
+
+            // Connection points
+            const inputPoint = document.createElement('div');
+            inputPoint.className = 'connection-point input';
+            inputPoint.onmousedown = (e) => startConnection(e, node.id, 'input');
+            
+            const outputPoint = document.createElement('div');
+            outputPoint.className = 'connection-point output';
+            outputPoint.onmousedown = (e) => startConnection(e, node.id, 'output');
+
+            nodeEl.appendChild(header);
+            nodeEl.appendChild(body);
+            nodeEl.appendChild(inputPoint);
+            nodeEl.appendChild(outputPoint);
+
+            // Make node draggable
+            header.onmousedown = (e) => startNodeDrag(e, node.id);
+            nodeEl.onclick = (e) => {
+                if (e.target.classList.contains('node-close')) return;
+                selectNode(node.id);
+            };
+
+            canvas.appendChild(nodeEl);
+        }
+
+        function startNodeDrag(e, nodeId) {
+            const node = nodes.find(n => n.id === nodeId);
+            if (!node) return;
+
+            isDragging = true;
+            selectedNode = node;
+            const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
+            const rect = nodeEl.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            dragOffset.x = e.clientX - (node.x * canvasScale + canvasOffset.x + canvasRect.left);
+            dragOffset.y = e.clientY - (node.y * canvasScale + canvasOffset.y + canvasRect.top);
+
+            document.addEventListener('mousemove', dragNode);
+            document.addEventListener('mouseup', stopNodeDrag);
+        }
+
+        function dragNode(e) {
+            if (!isDragging || !selectedNode) return;
+
+            const canvasRect = canvas.getBoundingClientRect();
+            selectedNode.x = (e.clientX - dragOffset.x - canvasOffset.x - canvasRect.left) / canvasScale;
+            selectedNode.y = (e.clientY - dragOffset.y - canvasOffset.y - canvasRect.top) / canvasScale;
+
+            const nodeEl = document.querySelector(`[data-node-id="${selectedNode.id}"]`);
+            nodeEl.style.left = selectedNode.x + 'px';
+            nodeEl.style.top = selectedNode.y + 'px';
+
+            updateConnections();
+        }
+
+        function stopNodeDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', dragNode);
+            document.removeEventListener('mouseup', stopNodeDrag);
+        }
+
+        function selectNode(nodeId) {
+            document.querySelectorAll('.workflow-node').forEach(n => n.classList.remove('selected'));
+            const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
+            if (nodeEl) {
+                nodeEl.classList.add('selected');
+                selectedNode = nodes.find(n => n.id === nodeId);
+                updatePreview();
+            }
+        }
+
+        function removeNode(nodeId) {
+            nodes = nodes.filter(n => n.id !== nodeId);
+            connections = connections.filter(c => c.from !== nodeId && c.to !== nodeId);
+            const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
+            if (nodeEl) nodeEl.remove();
+            updateConnections();
+            updateStatus();
+            updatePreview();
+        }
+
+        function startConnection(e, nodeId, type) {
+            e.stopPropagation();
+            connectingFrom = { nodeId, type };
+            document.addEventListener('mousemove', drawConnection);
+            document.addEventListener('mouseup', finishConnection);
+        }
+
+        function drawConnection(e) {
+            // Visual feedback for connection drawing
+        }
+
+        function finishConnection(e) {
+            if (!connectingFrom) return;
+
+            const target = e.target.closest('.connection-point');
+            if (target && target.dataset.nodeId) {
+                const targetNodeId = parseInt(target.dataset.nodeId);
+                const targetType = target.classList.contains('input') ? 'input' : 'output';
+
+                if (connectingFrom.type === 'output' && targetType === 'input' && 
+                    connectingFrom.nodeId !== targetNodeId) {
+                    addConnection(connectingFrom.nodeId, targetNodeId);
+                }
+            }
+
+            connectingFrom = null;
+            document.removeEventListener('mousemove', drawConnection);
+            document.removeEventListener('mouseup', finishConnection);
+        }
+
+        function addConnection(fromId, toId) {
+            // Check if connection already exists
+            if (connections.some(c => c.from === fromId && c.to === toId)) return;
+
+            connections.push({ from: fromId, to: toId });
+            updateConnections();
+            updateStatus();
+        }
+
+        function updateConnections() {
+            const svg = document.getElementById('connections-layer');
+            svg.innerHTML = '';
+
+            connections.forEach(conn => {
+                const fromNode = nodes.find(n => n.id === conn.from);
+                const toNode = nodes.find(n => n.id === conn.to);
+                if (!fromNode || !toNode) return;
+
+                const fromEl = document.querySelector(`[data-node-id="${conn.from}"]`);
+                const toEl = document.querySelector(`[data-node-id="${conn.to}"]`);
+                if (!fromEl || !toEl) return;
+
+                const fromPoint = fromEl.querySelector('.connection-point.output');
+                const toPoint = toEl.querySelector('.connection-point.input');
+                if (!fromPoint || !toPoint) return;
+
+                const fromRect = fromPoint.getBoundingClientRect();
+                const toRect = toPoint.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+
+                const x1 = (fromNode.x * canvasScale + canvasOffset.x + 200) / canvasScale;
+                const y1 = (fromNode.y * canvasScale + canvasOffset.y + 50) / canvasScale;
+                const x2 = (toNode.x * canvasScale + canvasOffset.x) / canvasScale;
+                const y2 = (toNode.y * canvasScale + canvasOffset.y + 50) / canvasScale;
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const midX = (x1 + x2) / 2;
+                path.setAttribute('d', `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
+                path.setAttribute('class', 'connection-line');
+                path.setAttribute('stroke', '#8B5CF6');
+                path.setAttribute('stroke-width', '2');
+                path.setAttribute('fill', 'none');
+                svg.appendChild(path);
+            });
+        }
+
+        function updateStatus() {
+            document.getElementById('node-count').textContent = nodes.length;
+            document.getElementById('connection-count').textContent = connections.length;
+        }
+
+        function updatePreview() {
+            const panel = document.getElementById('preview-panel');
+            const text = document.getElementById('preview-text');
+            
+            if (nodes.length === 0) {
+                panel.style.display = 'none';
+                return;
+            }
+
+            panel.style.display = 'block';
+            let preview = '';
+
+            // Find trigger nodes
+            const triggers = nodes.filter(n => n.category === 'trigger');
+            triggers.forEach(trigger => {
+                preview += `→ ${trigger.title}\n`;
+                trigger.inputs.forEach(input => {
+                    preview += `  ${input.label}: ${input.value}\n`;
+                });
+            });
+
+            // Find action nodes
+            const actions = nodes.filter(n => n.category === 'action');
+            if (actions.length > 0) {
+                preview += '\nActions:\n';
+                actions.forEach(action => {
+                    preview += `→ ${action.title}\n`;
+                    action.inputs.forEach(input => {
+                        preview += `  ${input.label}: ${input.value}\n`;
+                    });
+                });
+            }
+
+            text.textContent = preview || 'Add nodes to build workflow';
+        }
+
+        function zoomIn() {
+            canvasScale = Math.min(canvasScale * 1.2, 2);
+            document.getElementById('zoom-level').textContent = Math.round(canvasScale * 100) + '%';
+        }
+
+        function zoomOut() {
+            canvasScale = Math.max(canvasScale / 1.2, 0.5);
+            document.getElementById('zoom-level').textContent = Math.round(canvasScale * 100) + '%';
+        }
+
+        function resetView() {
+            canvasScale = 1;
+            canvasOffset = { x: 0, y: 0 };
+            document.getElementById('zoom-level').textContent = '100%';
+        }
+
+        function executeWorkflow() {
+            if (nodes.length === 0) {
+                alert('Add nodes to execute workflow');
+                return;
+            }
+            alert('Workflow execution started!\n\nThis would execute your strategy in production.');
+        }
+
+        // Initialize
+        updateStatus();
+        updatePreview();
+    </script>
+</body>
+</html>
+

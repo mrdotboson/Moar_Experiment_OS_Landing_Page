@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Pro-Grade Dark Purple Color Palette */
+  --catalyst-purple: #8B5CF6;
+  --catalyst-purple-dim: #6D28D9;
+  --catalyst-purple-bright: #A78BFA;
+  --catalyst-purple-dark: #5B21B6;
+  --bloomberg-bg: #0A0A0A;
+  --bloomberg-panel: #111111;
+  --bloomberg-border: #333333;
+  --bloomberg-text: #E0E0E0;
+  --bloomberg-text-dim: #999999;
+  --bloomberg-green: #00FF88;
+  --bloomberg-red: #FF4444;
+  --bloomberg-yellow: #FFAA00;
+  --bloomberg-blue: #4488FF;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bloomberg-bg);
+  color: var(--bloomberg-text);
+  font-family: 'Courier New', 'Courier', 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: optimizeSpeed;
+}
+
+#__next {
+  width: 100%;
+  height: 100%;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--catalyst-purple);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--catalyst-purple-bright);
+}
+
+/* Bloomberg Terminal Styles */
+.terminal-panel {
+  background: var(--bloomberg-panel);
+  border: 1px solid var(--bloomberg-border);
+  color: var(--bloomberg-text);
+}
+
+.terminal-header {
+  background: var(--bloomberg-bg);
+  border-bottom: 1px solid var(--bloomberg-border);
+  padding: 2px 6px;
+  font-size: 11px;
+  color: var(--catalyst-purple);
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.terminal-input {
+  background: var(--bloomberg-bg);
+  border: 1px solid var(--bloomberg-border);
+  color: var(--bloomberg-text);
+  font-family: monospace;
+  font-size: 12px;
+  padding: 4px 6px;
+}
+
+.terminal-input:focus {
+  outline: 1px solid var(--catalyst-purple);
+  border-color: var(--catalyst-purple);
+}
+
+.blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll-left {
+  animation: scroll-left 60s linear infinite;
+  display: flex;
+  width: fit-content;
+}
+
+.text-purple {
+  color: var(--catalyst-purple);
+}
+
+.text-green {
+  color: var(--bloomberg-green);
+}
+
+.text-red {
+  color: var(--bloomberg-red);
+}
+
+.text-yellow {
+  color: var(--bloomberg-yellow);
+}
+
+.text-blue {
+  color: var(--bloomberg-blue);
+}
+
+.bg-panel {
+  background: var(--bloomberg-panel);
+}
+
+.bg-dark {
+  background: var(--bloomberg-bg);
+}
+
+.border-terminal {
+  border: 1px solid var(--bloomberg-border);
+}
+
+.grid-line {
+  border-top: 1px solid var(--bloomberg-border);
+  border-bottom: 1px solid var(--bloomberg-border);
+}
+

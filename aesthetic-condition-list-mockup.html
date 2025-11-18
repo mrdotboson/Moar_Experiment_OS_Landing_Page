@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aesthetic Condition List - Premium Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0A0A0A;
+            color: #E0E0E0;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0A0A0A 0%, #111111 100%);
+            position: relative;
+        }
+
+        /* Subtle animated background */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: 
+                radial-gradient(circle at 20% 50%, #8B5CF6 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, #00FF88 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, #FFAA00 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8B5CF6 0%, #00FF88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header .subtitle {
+            font-size: 11px;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Action Selector - Premium Design */
+        .action-selector {
+            margin-bottom: 32px;
+        }
+
+        .section-label {
+            font-size: 10px;
+            color: #8B5CF6;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .action-card {
+            padding: 16px;
+            background: linear-gradient(135deg, #111111 0%, #0A0A0A 100%);
+            border: 1px solid #222222;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #8B5CF6, #00FF88);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .action-card:hover {
+            border-color: #8B5CF6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
+        }
+
+        .action-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .action-card.active {
+            border-color: #8B5CF6;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .action-card.active::before {
+            transform: scaleX(1);
+        }
+
+        .action-card-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #E0E0E0;
+            margin-bottom: 4px;
+        }
+
+        .action-card-desc {
+            font-size: 9px;
+            color: #666666;
+        }
+
+        /* Conditions Section */
+        .conditions-section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .condition-count {
+            font-size: 9px;
+            color: #666666;
+            background: #111111;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 1px solid #222222;
+        }
+
+        /* Condition Cards - Premium Design */
+        .condition-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .condition-card {
+            background: linear-gradient(135deg, #111111 0%, #0F0F0F 100%);
+            border: 1px solid #222222;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .condition-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #8B5CF6, #00FF88);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .condition-card:hover {
+            border-color: #8B5CF6;
+            transform: translateX(4px);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.15);
+        }
+
+        .condition-card:hover::before {
+            opacity: 1;
+        }
+
+        .condition-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .condition-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            color: #0A0A0A;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+            margin-right: 12px;
+        }
+
+        .condition-content {
+            flex: 1;
+        }
+
+        .condition-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #E0E0E0;
+            margin-bottom: 4px;
+        }
+
+        .condition-description {
+            font-size: 11px;
+            color: #999999;
+            line-height: 1.5;
+        }
+
+        .condition-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #333333;
+            background: #0A0A0A;
+            color: #666666;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+
+        .action-btn:hover {
+            border-color: #8B5CF6;
+            color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.1);
+            transform: scale(1.1);
+        }
+
+        .action-btn.danger:hover {
+            border-color: #FF4444;
+            color: #FF4444;
+            background: rgba(255, 68, 68, 0.1);
+        }
+
+        /* Logic Indicator - Premium */
+        .logic-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #222222;
+        }
+
+        .logic-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #333333, transparent);
+            position: relative;
+        }
+
+        .logic-line::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -3px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #333333;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+        .logic-toggle {
+            padding: 8px 16px;
+            border: 1px solid #333333;
+            background: linear-gradient(135deg, #0A0A0A 0%, #111111 100%);
+            color: #8B5CF6;
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            min-width: 70px;
+            text-align: center;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .logic-toggle:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.1);
+            transform: scale(1.05);
+        }
+
+        .logic-toggle.or {
+            color: #00FF88;
+            border-color: #00FF88;
+        }
+
+        .logic-toggle.or:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        /* Add Condition Button - Premium */
+        .add-condition-btn {
+            margin-top: 20px;
+            padding: 16px 24px;
+            border: 2px dashed #333333;
+            background: transparent;
+            color: #8B5CF6;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 12px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .add-condition-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .add-condition-btn:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
+        }
+
+        .add-condition-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .add-condition-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Preview Section - Premium */
+        .preview-section {
+            margin-top: 40px;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(0, 255, 136, 0.05) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #8B5CF6, #00FF88);
+        }
+
+        .preview-label {
+            font-size: 9px;
+            color: #8B5CF6;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .preview-text {
+            font-size: 12px;
+            color: #E0E0E0;
+            font-family: 'SF Mono', monospace;
+            line-height: 1.8;
+        }
+
+        .preview-text .action {
+            color: #FFAA00;
+            font-weight: 600;
+        }
+
+        .preview-text .event {
+            color: #8B5CF6;
+            font-weight: 600;
+        }
+
+        .preview-text .logic {
+            color: #666666;
+            font-weight: 500;
+        }
+
+        .preview-text .condition {
+            color: #E0E0E0;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 24px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #222222;
+        }
+
+        .stat-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8B5CF6 0%, #00FF88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .condition-card {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .action-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="bg-pattern"></div>
+        
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Strategy Builder</h1>
+                <div class="subtitle">Professional Trading Automation</div>
+            </div>
+
+            <!-- Action Selector -->
+            <div class="action-selector">
+                <div class="section-label">Action</div>
+                <div class="action-grid">
+                    <div class="action-card active" onclick="setAction(this)">
+                        <div class="action-card-title">Close Position</div>
+                        <div class="action-card-desc">Exit on condition</div>
+                    </div>
+                    <div class="action-card" onclick="setAction(this)">
+                        <div class="action-card-title">Reverse</div>
+                        <div class="action-card-desc">Flip direction</div>
+                    </div>
+                    <div class="action-card" onclick="setAction(this)">
+                        <div class="action-card-title">Increase</div>
+                        <div class="action-card-desc">Add to position</div>
+                    </div>
+                    <div class="action-card" onclick="setAction(this)">
+                        <div class="action-card-title">Reduce</div>
+                        <div class="action-card-desc">Partial close</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conditions Section -->
+            <div class="conditions-section">
+                <div class="section-header">
+                    <div class="section-label">Active Conditions</div>
+                    <div class="condition-count">3 conditions</div>
+                </div>
+
+                <div class="condition-list">
+                    <!-- Condition 1 -->
+                    <div class="condition-card">
+                        <div class="condition-header">
+                            <div style="display: flex; align-items: center; flex: 1;">
+                                <div class="condition-number">①</div>
+                                <div class="condition-content">
+                                    <div class="condition-title">Polymarket Event</div>
+                                    <div class="condition-description">"BTC ETF Approval" probability ≥ 75%</div>
+                                </div>
+                            </div>
+                            <div class="condition-actions">
+                                <button class="action-btn" title="Move Up">↑</button>
+                                <button class="action-btn" title="Move Down">↓</button>
+                                <button class="action-btn" title="Edit">✎</button>
+                                <button class="action-btn danger" title="Remove">×</button>
+                            </div>
+                        </div>
+                        <div class="logic-indicator">
+                            <div class="logic-line"></div>
+                            <button class="logic-toggle" onclick="toggleLogic(this)">AND ▼</button>
+                            <div class="logic-line"></div>
+                        </div>
+                    </div>
+
+                    <!-- Condition 2 -->
+                    <div class="condition-card">
+                        <div class="condition-header">
+                            <div style="display: flex; align-items: center; flex: 1;">
+                                <div class="condition-number">②</div>
+                                <div class="condition-content">
+                                    <div class="condition-title">Price Level</div>
+                                    <div class="condition-description">Price above $45,000</div>
+                                </div>
+                            </div>
+                            <div class="condition-actions">
+                                <button class="action-btn" title="Move Up">↑</button>
+                                <button class="action-btn" title="Move Down">↓</button>
+                                <button class="action-btn" title="Edit">✎</button>
+                                <button class="action-btn danger" title="Remove">×</button>
+                            </div>
+                        </div>
+                        <div class="logic-indicator">
+                            <div class="logic-line"></div>
+                            <button class="logic-toggle" onclick="toggleLogic(this)">AND ▼</button>
+                            <div class="logic-line"></div>
+                        </div>
+                    </div>
+
+                    <!-- Condition 3 -->
+                    <div class="condition-card">
+                        <div class="condition-header">
+                            <div style="display: flex; align-items: center; flex: 1;">
+                                <div class="condition-number">③</div>
+                                <div class="condition-content">
+                                    <div class="condition-title">Funding Rate</div>
+                                    <div class="condition-description">Funding rate below -0.01%</div>
+                                </div>
+                            </div>
+                            <div class="condition-actions">
+                                <button class="action-btn" title="Move Up">↑</button>
+                                <button class="action-btn" title="Move Down">↓</button>
+                                <button class="action-btn" title="Edit">✎</button>
+                                <button class="action-btn danger" title="Remove">×</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="add-condition-btn" onclick="addCondition()">
+                    <span>+ Add Condition</span>
+                </button>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <div class="preview-label">Command Preview</div>
+                <div class="preview-text">
+                    <span class="action">Close</span> SOL long position if<br>
+                    <span class="event">Polymarket "BTC ETF Approval"</span><br>
+                    probability <span class="condition">≥ 75%</span><br>
+                    <span class="logic">AND</span> price <span class="condition">above $45,000</span><br>
+                    <span class="logic">AND</span> funding rate <span class="condition">below -0.01%</span>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Conditions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">AND Gates</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">30s</div>
+                    <div class="stat-label">Setup Time</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setAction(card) {
+            document.querySelectorAll('.action-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+        }
+
+        function toggleLogic(btn) {
+            if (btn.textContent.includes('AND')) {
+                btn.textContent = 'OR ▼';
+                btn.classList.add('or');
+            } else {
+                btn.textContent = 'AND ▼';
+                btn.classList.remove('or');
+            }
+        }
+
+        function addCondition() {
+            alert('Add condition form would open here');
+        }
+    </script>
+</body>
+</html>
+
