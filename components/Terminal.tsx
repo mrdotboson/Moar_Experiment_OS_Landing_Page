@@ -2408,7 +2408,6 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                           setInput(`Close ${selectedPosition.asset} ${selectedPosition.direction.toLowerCase()} position ${selectedPosition.id} immediately`)
                           setShowPositionModal(false)
                           setSelectedPosition(null)
-                          setTimeout(() => inputRef.current?.focus(), 100)
                         }}
                         className="bg-bloomberg-red hover:bg-bloomberg-red/80 text-bloomberg-bg px-4 py-2 text-[10px] font-bold transition-colors"
                       >
