@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   title: 'Catalyst Terminal - Strategy Compiler',
   description: 'Natural language → compiled strategy logic → simulation',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+  icons: {
+    icon: '/catalyst-logo.svg',
+    apple: '/catalyst-logo.svg',
+  },
 }
 
 export default function RootLayout({

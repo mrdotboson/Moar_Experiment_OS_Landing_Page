@@ -655,6 +655,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
       {/* Top Status Bar */}
       <div className="bg-bloomberg-panel border-b border-terminal h-6 flex items-center justify-between px-2 text-xs">
         <div className="flex items-center gap-2 md:gap-4">
+          <img src="/catalyst-logo.svg" alt="Catalyst" className="h-4 w-4 flex-shrink-0 bg-transparent" style={{ backgroundColor: 'transparent' }} />
           <span className="text-bloomberg-orange font-bold">CATALYST</span>
           <span className="hidden sm:inline text-bloomberg-text-dim">v1.0.0</span>
           <span className="text-bloomberg-green">●</span>
@@ -2459,8 +2460,8 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           )}
 
           {/* Main Input Area */}
-          <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto" style={{ marginTop: '-10vh' }}>
-            <div className="w-full max-w-5xl px-4 md:px-0">
+          <div className="flex-1 flex flex-col justify-center items-center p-3 md:p-8 min-h-0 overflow-y-auto" style={{ marginTop: '-10vh' }}>
+            <div className="w-full max-w-5xl px-2 md:px-0">
               {/* Tagline - Above CATALYST */}
               <div className="mb-3 md:mb-3 flex items-center gap-2">
                 <div className="flex flex-wrap items-center gap-2 text-sm md:text-base font-mono">
@@ -2475,9 +2476,9 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               </div>
 
               {/* Input Field */}
-              <div className="bg-bloomberg-panel border border-terminal p-2 md:p-2 overflow-hidden">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-[#8B5CF6] text-xs md:text-sm flex-shrink-0">&gt;</span>
+              <div className="bg-bloomberg-panel border border-terminal p-2 md:p-2 overflow-hidden w-full">
+                <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
+                  <span className="text-[#8B5CF6] text-[10px] md:text-sm flex-shrink-0">&gt;</span>
                   <input
                     key={`input-${isBetweenExamples ? 'empty' : 'active'}-${displayedText.length}`}
                     ref={inputRef}
@@ -2485,11 +2486,11 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     value={inputValue}
                     readOnly
                     placeholder=""
-                    className="flex-1 bg-transparent text-bloomberg-text outline-none font-mono text-xs md:text-sm cursor-default min-w-0 overflow-x-auto"
+                    className="flex-1 bg-transparent text-bloomberg-text outline-none font-mono text-[10px] md:text-sm cursor-default min-w-0 overflow-x-auto"
                     tabIndex={-1}
                   />
                   {showCursor && (
-                    <span className="w-[2px] h-4 bg-[#8B5CF6] blink flex-shrink-0" />
+                    <span className="w-[2px] h-3 md:h-4 bg-[#8B5CF6] blink flex-shrink-0" />
                   )}
                 </div>
               </div>
@@ -3496,26 +3497,26 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
         ]
         
         return (positions.length > 0 || pendingOrders.length > 0) ? (
-          <div className="absolute bottom-[24px] left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-4 py-2.5 flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[200px] overflow-y-auto">
+          <div className="absolute bottom-[24px] left-0 md:left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-2 md:px-4 py-2 md:py-2.5 flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[200px] overflow-y-auto">
             {/* Conditional Orders Section */}
             {pendingOrders.length > 0 && (
               <div className="mb-3 pb-3 border-b border-terminal/50">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setShowPendingOrders(!showPendingOrders)}
-                      className="text-bloomberg-text-dim hover:text-bloomberg-text text-[8px] transition-colors"
-                    >
-                      {showPendingOrders ? '▼' : '▶'}
-                    </button>
-                    <div className="w-1.5 h-1.5 bg-bloomberg-orange rounded-full animate-pulse"></div>
-                    <div className="text-bloomberg-text text-[9px] font-bold uppercase">
-                      Pending Conditional Orders ({pendingOrders.length})
+                      <div className="flex items-center gap-1.5 md:gap-2 flex-1 min-w-0">
+                      <button
+                        onClick={() => setShowPendingOrders(!showPendingOrders)}
+                        className="text-bloomberg-text-dim hover:text-bloomberg-text text-[8px] transition-colors flex-shrink-0"
+                      >
+                        {showPendingOrders ? '▼' : '▶'}
+                      </button>
+                      <div className="w-1.5 h-1.5 bg-bloomberg-orange rounded-full animate-pulse flex-shrink-0"></div>
+                      <div className="text-bloomberg-text text-[8px] md:text-[9px] font-bold uppercase truncate">
+                        Pending Conditional Orders ({pendingOrders.length})
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-bloomberg-text-dim text-[8px]">
-                    Waiting for conditions to trigger
-                  </div>
+                    <div className="text-bloomberg-text-dim text-[8px] hidden sm:block">
+                      Waiting for conditions to trigger
+                    </div>
                 </div>
                 {showPendingOrders && (
                   <div className="flex gap-2 overflow-x-auto pb-1">
@@ -3529,7 +3530,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     return (
                       <div
                         key={order.id}
-                        className="bg-bloomberg-bg border border-bloomberg-orange/30 hover:border-bloomberg-orange transition-all cursor-pointer px-3 py-2 min-w-[280px] relative group"
+                        className="bg-bloomberg-bg border border-bloomberg-orange/30 hover:border-bloomberg-orange transition-all cursor-pointer px-2 md:px-3 py-2 min-w-[240px] md:min-w-[280px] relative group"
                       >
                         {/* Active indicator bar */}
                         <div className="absolute top-0 left-0 right-0 h-0.5 bg-bloomberg-orange/60 group-hover:bg-bloomberg-orange"></div>
@@ -3599,24 +3600,24 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               return totalActive > 0 ? (
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 md:gap-2 flex-1 min-w-0">
                       <button
                         onClick={() => setShowActivePositions(!showActivePositions)}
-                        className="text-bloomberg-text-dim hover:text-bloomberg-text text-[8px] transition-colors"
+                        className="text-bloomberg-text-dim hover:text-bloomberg-text text-[8px] transition-colors flex-shrink-0"
                       >
                         {showActivePositions ? '▼' : '▶'}
                       </button>
-                      <div className="w-1.5 h-1.5 bg-bloomberg-green rounded-full animate-pulse"></div>
-                      <div className="text-bloomberg-text text-[9px] font-bold uppercase">
+                      <div className="w-1.5 h-1.5 bg-bloomberg-green rounded-full animate-pulse flex-shrink-0"></div>
+                      <div className="text-bloomberg-text text-[8px] md:text-[9px] font-bold uppercase truncate">
                         Active Positions & Limit Orders ({totalActive})
                       </div>
                       {positions.some(p => p.exitConditions && p.exitConditions.length > 0) && (
-                        <div className="text-[#8B5CF6] text-[8px] font-bold">
+                        <div className="text-[#8B5CF6] text-[7px] md:text-[8px] font-bold flex-shrink-0">
                           • {positions.filter(p => p.exitConditions && p.exitConditions.length > 0).length} with automations
                         </div>
                       )}
                     </div>
-                    <div className="text-bloomberg-text-dim text-[8px]">
+                    <div className="text-bloomberg-text-dim text-[8px] hidden sm:block">
                       Click to manage & add automations
                     </div>
                   </div>
@@ -3636,7 +3637,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               return (
                 <div
                   key={position.id}
-                  className="bg-bloomberg-bg border border-terminal px-3 py-2 min-w-[220px] relative group"
+                  className="bg-bloomberg-bg border border-terminal px-2 md:px-3 py-2 min-w-[200px] md:min-w-[220px] relative group"
                 >
                   {/* Active indicator bar */}
                   <div className="absolute top-0 left-0 right-0 h-0.5 bg-bloomberg-green/60 group-hover:bg-bloomberg-green"></div>
@@ -3732,7 +3733,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                             setShowConditionBuilder(true)
                             setShowPositionModal(true)
                           }}
-                          className="bg-bloomberg-bg border border-bloomberg-blue/30 hover:border-bloomberg-blue transition-all cursor-pointer px-3 py-2 min-w-[240px] relative group"
+                          className="bg-bloomberg-bg border border-bloomberg-blue/30 hover:border-bloomberg-blue transition-all cursor-pointer px-2 md:px-3 py-2 min-w-[220px] md:min-w-[240px] relative group"
                         >
                           {/* Limit order indicator bar */}
                           <div className={`absolute top-0 left-0 right-0 h-0.5 ${isNearFill ? 'bg-bloomberg-orange' : 'bg-bloomberg-blue/60'} group-hover:bg-bloomberg-blue`}></div>
