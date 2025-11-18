@@ -350,10 +350,15 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
   // Auto-scroll input container to show full text on mobile
   useEffect(() => {
     if (inputContainerRef.current && displayedText.length > 0) {
-      // Scroll to the right to show the latest text
-      inputContainerRef.current.scrollLeft = inputContainerRef.current.scrollWidth
+      // Scroll to the right to show the latest text with some padding for cursor visibility
+      // Use requestAnimationFrame to ensure DOM is updated
+      requestAnimationFrame(() => {
+        if (inputContainerRef.current) {
+          inputContainerRef.current.scrollLeft = inputContainerRef.current.scrollWidth + 20
+        }
+      })
     }
-  }, [displayedText])
+  }, [displayedText, showCursor])
 
   // Force input to be empty and hide placeholder when displayedText is empty
   useEffect(() => {
@@ -2462,8 +2467,8 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           )}
 
           {/* Mobile Header - Event-Aware Explainers & Connection Status */}
-          <div className="md:hidden bg-bloomberg-bg border-b border-terminal px-4 py-3 flex-shrink-0">
-            <div className="mb-3">
+          <div className="md:hidden bg-bloomberg-bg border-b border-terminal px-4 py-3.5 flex-shrink-0">
+            <div className="mb-3.5">
               <div className="text-[#8B5CF6] text-sm font-bold uppercase mb-1.5">Event-Aware Conditional Orders</div>
               <div className="text-bloomberg-text-dim text-xs leading-relaxed">Trade automatically when Polymarket events trigger + market conditions align</div>
             </div>
@@ -2479,7 +2484,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
 
           {/* Mobile Hyperliquid Ticker */}
           {hyperliquidMarkets.length > 0 && !loadingHyperliquid && (
-            <div className="md:hidden bg-bloomberg-panel border-b border-terminal overflow-hidden relative h-10 flex-shrink-0">
+            <div className="md:hidden bg-bloomberg-panel border-b border-terminal overflow-hidden relative h-11 flex-shrink-0">
               <div className="flex items-center h-full">
                 <div className="bg-bloomberg-green text-bloomberg-bg px-3 py-1.5 text-[10px] font-bold uppercase whitespace-nowrap z-10 flex-shrink-0">
                   HYPERLIQUID
@@ -2511,7 +2516,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                         return (
                           <div
                             key={`mobile-${market.symbol}-${idx}`}
-                            className="flex items-center gap-3 px-4 whitespace-nowrap"
+                            className="flex items-center gap-2 px-3 whitespace-nowrap"
                           >
                             <div className="text-bloomberg-text text-[10px] font-bold">
                               {market.symbol}
@@ -2523,7 +2528,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                               {changeSign}{market.change24h.toFixed(2)}%
                             </div>
                             <div className="text-bloomberg-text-dim text-[9px]">
-                              Vol: {volumeM}
+                              {volumeM}
                             </div>
                           </div>
                         )
@@ -2539,7 +2544,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[120px] md:pb-0" style={{ marginTop: 'clamp(-3vh, -5vh, 0px)' }}>
             <div className="w-full max-w-5xl px-4 md:px-0">
               {/* Tagline - Above CATALYST */}
-              <div className="mb-4 md:mb-3 flex items-center gap-2">
+              <div className="mb-5 md:mb-3 flex items-center gap-2">
                 <div className="flex flex-wrap items-center gap-2 text-base md:text-base font-mono leading-relaxed">
                   <span className="text-bloomberg-text font-bold">React faster to the world's</span>
                   <span className="text-[#8B5CF6] font-bold">changing probabilities.</span>
@@ -2557,7 +2562,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                 className="bg-bloomberg-panel border border-terminal p-3 md:p-2 w-full overflow-x-auto input-container"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
-                <div className="flex items-center gap-2 md:gap-2" style={{ minWidth: 'max-content' }}>
+                <div className="flex items-center gap-2 md:gap-2 pr-4" style={{ minWidth: 'max-content' }}>
                   <span className="text-[#8B5CF6] text-sm md:text-sm flex-shrink-0">&gt;</span>
                   <span className="bg-transparent text-bloomberg-text font-mono text-sm md:text-sm whitespace-nowrap">
                     {inputValue}
@@ -3569,7 +3574,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
         ]
         
         return (positions.length > 0 || pendingOrders.length > 0) ? (
-          <div className="absolute bottom-0 md:bottom-[24px] left-0 md:left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-3 md:px-4 py-3 md:py-2.5 pb-[max(60px,calc(env(safe-area-inset-bottom)+32px))] flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[50vh] md:max-h-[200px] overflow-y-auto">
+          <div className="absolute bottom-0 md:bottom-[24px] left-0 md:left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-3 md:px-4 py-3 md:py-2.5 pb-[max(80px,calc(env(safe-area-inset-bottom)+48px))] flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[50vh] md:max-h-[200px] overflow-y-auto">
             {/* Conditional Orders Section */}
             {pendingOrders.length > 0 && (
               <div className="mb-3 pb-3 border-b border-terminal/50">
