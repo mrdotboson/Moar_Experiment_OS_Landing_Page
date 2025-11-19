@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     icon: '/catalyst-logo.svg',
     apple: '/catalyst-logo.svg',
   },
-  themeColor: '#0A0A0A',
+  themeColor: '#111111',
 }
 
 export default function RootLayout({

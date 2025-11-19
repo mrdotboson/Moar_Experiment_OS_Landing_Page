@@ -50,8 +50,14 @@ const pool = new Pool({
 
 // Initialize database table on first use
 async function ensureTableExists() {
-  const client = await pool.connect()
+  // Check if DATABASE_URL is set
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL environment variable is not set')
+  }
+
+  let client
   try {
+    client = await pool.connect()
     await client.query(`
       CREATE TABLE IF NOT EXISTS early_access_signups (
         id SERIAL PRIMARY KEY,
@@ -63,8 +69,19 @@ async function ensureTableExists() {
       CREATE INDEX IF NOT EXISTS idx_email ON early_access_signups(email);
       CREATE INDEX IF NOT EXISTS idx_created_at ON early_access_signups(created_at);
     `)
+  } catch (error: any) {
+    // Re-throw with more context
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      throw new Error(`Database connection failed: ${error.message}. Please check your DATABASE_URL.`)
+    }
+    if (error.code === '28P01') {
+      throw new Error('Database authentication failed. Please check your DATABASE_URL credentials.')
+    }
+    throw error
   } finally {
-    client.release()
+    if (client) {
+      client.release()
+    }
   }
 }
 
@@ -125,7 +142,25 @@ export async function POST(request: NextRequest) {
     try {
       await ensureTableExists()
     } catch (tableError: any) {
-      console.error('Table creation error:', tableError)
+      console.error('Table creation error:', {
+        message: tableError.message,
+        code: tableError.code,
+      })
+      
+      // Provide more specific error messages
+      if (tableError.message.includes('DATABASE_URL')) {
+        return NextResponse.json(
+          { error: 'Database not configured. Please contact support.' },
+          { status: 500 }
+        )
+      }
+      if (tableError.message.includes('connection failed') || tableError.message.includes('authentication failed')) {
+        return NextResponse.json(
+          { error: 'Database connection error. Please check your configuration.' },
+          { status: 503 }
+        )
+      }
+      
       return NextResponse.json(
         { error: 'Database setup error. Please try again later.' },
         { status: 500 }
@@ -133,8 +168,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert into database using parameterized query (prevents SQL injection)
-    const client = await pool.connect()
+    let client
     try {
+      client = await pool.connect()
       const result = await client.query(
         `INSERT INTO early_access_signups (email, telegram) 
          VALUES ($1, $2) 

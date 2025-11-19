@@ -2541,10 +2541,10 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           {/* Mobile Connection Status - Below Ticker */}
           <div className="md:hidden bg-bloomberg-bg border-b border-terminal px-4 py-2.5 flex-shrink-0">
             <div className="flex items-center gap-2 flex-wrap justify-end">
-              <div className="px-2.5 py-1 bg-bloomberg-green/20 text-bloomberg-green text-[10px] font-mono">
+              <div className="px-2.5 py-1 bg-bloomberg-green/20 text-bloomberg-green text-[10px] font-mono outline-none focus:outline-none">
                 ● POLYMARKET CONNECTED
               </div>
-              <div className="px-2.5 py-1 bg-bloomberg-green/20 text-bloomberg-green text-[10px] font-mono">
+              <div className="px-2.5 py-1 bg-bloomberg-green/20 text-bloomberg-green text-[10px] font-mono outline-none focus:outline-none">
                 ● HYPERLIQUID CONNECTED
               </div>
             </div>
