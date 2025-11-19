@@ -2737,12 +2737,12 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     </div>
                   </>
                 ) : (
-                  <div className="text-center py-12 flex flex-col items-center justify-center flex-1">
-                    <div className="text-bloomberg-green text-5xl mb-6">✓</div>
-                    <div className="text-bloomberg-text text-xl font-bold font-mono mb-3">
+                  <div className="flex flex-col items-center justify-center flex-1 py-8 md:py-12">
+                    <div className="text-bloomberg-green text-5xl md:text-6xl mb-6 text-center">✓</div>
+                    <div className="text-bloomberg-text text-xl md:text-2xl font-bold font-mono mb-3 text-center">
                       YOU'RE ON THE LIST
                     </div>
-                    <div className="text-bloomberg-text-dim text-base font-mono mb-8">
+                    <div className="text-bloomberg-text-dim text-base md:text-lg font-mono mb-8 text-center px-4">
                       We'll notify you when Catalyst is ready.
                     </div>
                     <button
@@ -2752,7 +2752,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                         setEarlyAccessTelegram('')
                         setEarlyAccessSubmitted(false)
                       }}
-                      className="px-8 py-4 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] text-sm font-mono uppercase transition-colors cursor-pointer font-bold min-h-[52px]"
+                      className="w-full md:w-auto px-8 py-4 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] text-sm font-mono uppercase transition-colors cursor-pointer font-bold min-h-[52px]"
                     >
                       CLOSE
                     </button>
