@@ -681,32 +681,32 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
   return (
     <div className="absolute inset-0 bg-bloomberg-bg z-10">
       {/* Top Status Bar */}
-      <div className="bg-bloomberg-panel border-b border-terminal h-10 md:h-6 flex items-center justify-between px-3 md:px-2 text-xs">
-        <div className="flex items-center gap-2 md:gap-4">
+      <div className="bg-bloomberg-panel border-b border-terminal h-auto md:h-6 flex items-center justify-between px-3 md:px-2 text-xs py-1.5 md:py-0">
+        <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
           <img src="/catalyst-logo.svg" alt="Catalyst" className="h-6 w-6 md:h-4 md:w-4 flex-shrink-0 bg-transparent" style={{ backgroundColor: 'transparent' }} />
-          <span className="text-bloomberg-orange font-bold text-base md:text-xs">CATALYST</span>
+          <span className="text-bloomberg-orange font-bold text-base md:text-xs whitespace-nowrap">CATALYST</span>
           <span className="hidden lg:inline text-bloomberg-text-dim text-xs">v1.0.0</span>
           <span className="text-bloomberg-green text-sm md:text-xs">●</span>
           <span className="hidden lg:inline text-bloomberg-text-dim text-xs">ONLINE</span>
         </div>
-        <div className="flex items-center gap-2 md:gap-4 text-bloomberg-text-dim">
+        <div className="flex items-center gap-1.5 md:gap-4 text-bloomberg-text-dim flex-shrink min-w-0">
           <span className="hidden lg:inline text-xs">USER: TRADER_001</span>
           <span className="hidden lg:inline text-xs">|</span>
           <span suppressHydrationWarning className="hidden md:inline text-xs md:text-[10px]">{currentTime || '--:--:--'}</span>
           {/* Mobile: Connection Status next to CATALYST */}
-          <div className="md:hidden flex items-center gap-2 flex-wrap">
-            <div className="px-2.5 py-1 bg-bloomberg-green/20 text-bloomberg-green text-[10px] font-mono outline-none focus:outline-none font-semibold">
-              ● POLYMARKET CONNECTED
+          <div className="md:hidden flex items-center gap-1.5 flex-shrink-0">
+            <div className="px-2 py-0.5 bg-bloomberg-green/20 text-bloomberg-green text-[9px] font-mono outline-none focus:outline-none font-semibold whitespace-nowrap">
+              ● POLYMARKET
             </div>
-            <div className="px-2.5 py-1 bg-bloomberg-green/20 text-bloomberg-green text-[10px] font-mono outline-none focus:outline-none font-semibold">
-              ● HYPERLIQUID CONNECTED
+            <div className="px-2 py-0.5 bg-bloomberg-green/20 text-bloomberg-green text-[9px] font-mono outline-none focus:outline-none font-semibold whitespace-nowrap">
+              ● HYPERLIQUID
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Terminal Area */}
-      <div className="h-[calc(100%-40px)] md:h-[calc(100%-24px)] flex overflow-hidden relative">
+      <div className="flex-1 md:h-[calc(100%-24px)] flex overflow-hidden relative min-h-0">
         {/* Left Sidebar - Optimized Command Reference */}
         <div className="hidden md:block absolute left-0 top-0 bottom-0 w-64 bg-bloomberg-panel border-r border-terminal p-3 text-xs overflow-y-auto z-10">
           <div className="text-[#8B5CF6] font-bold mb-3 uppercase text-xs border-b border-terminal pb-2">Command Reference</div>
