@@ -131,12 +131,16 @@ export async function POST(request: NextRequest) {
 
     // Check if DATABASE_URL is configured
     if (!process.env.DATABASE_URL) {
-      console.error('DATABASE_URL is not set')
+      console.error('DATABASE_URL is not set in environment variables')
+      console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('DATABASE')))
       return NextResponse.json(
         { error: 'Database not configured. Please contact support.' },
         { status: 500 }
       )
     }
+    
+    // Log for debugging (don't log the actual URL for security)
+    console.log('DATABASE_URL is set:', process.env.DATABASE_URL ? 'Yes' : 'No')
 
     // Ensure table exists (in case it wasn't created yet)
     try {
@@ -145,16 +149,17 @@ export async function POST(request: NextRequest) {
       console.error('Table creation error:', {
         message: tableError.message,
         code: tableError.code,
+        name: tableError.name,
       })
       
       // Provide more specific error messages
-      if (tableError.message.includes('DATABASE_URL')) {
+      if (tableError.message.includes('DATABASE_URL') || tableError.message.includes('not set')) {
         return NextResponse.json(
           { error: 'Database not configured. Please contact support.' },
           { status: 500 }
         )
       }
-      if (tableError.message.includes('connection failed') || tableError.message.includes('authentication failed')) {
+      if (tableError.message.includes('connection failed') || tableError.message.includes('authentication failed') || tableError.code === 'ECONNREFUSED' || tableError.code === 'ENOTFOUND') {
         return NextResponse.json(
           { error: 'Database connection error. Please check your configuration.' },
           { status: 503 }
@@ -162,7 +167,7 @@ export async function POST(request: NextRequest) {
       }
       
       return NextResponse.json(
-        { error: 'Database setup error. Please try again later.' },
+        { error: `Database setup error: ${tableError.message}. Please try again later.` },
         { status: 500 }
       )
     }
