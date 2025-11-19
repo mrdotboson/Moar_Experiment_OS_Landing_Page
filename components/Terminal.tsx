@@ -275,22 +275,25 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
     }
     
     // Landing page - always animate (user can't type)
-
     const currentExample = shuffledExamples[exampleIndex]
     if (!currentExample) return
     
-    let timeoutId: NodeJS.Timeout
+    // Clear any existing timeout first
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current)
+      animationTimeoutRef.current = null
+    }
+
+    let timeoutId: NodeJS.Timeout | null = null
 
     if (isTyping) {
-      // Typing phase - realistic typing speed with slight variation
+      // Typing phase - smooth, consistent typing speed
       if (displayedText.length < currentExample.length) {
-        // If displayedText is empty, start immediately, otherwise use variable delay
-        const baseDelay = displayedText.length === 0 ? 0 : 40
-        // Add slight randomness to make it feel more human (30-50ms range)
-        const delay = baseDelay + (displayedText.length === 0 ? 0 : Math.random() * 20)
+        // Consistent delay for smooth animation (30ms per character)
+        const delay = 30
         timeoutId = setTimeout(() => {
           setDisplayedText(currentExample.slice(0, displayedText.length + 1))
-          setShowPlaceholder(false) // Hide placeholder while typing
+          setShowPlaceholder(false)
         }, delay)
         animationTimeoutRef.current = timeoutId
       } else {
@@ -301,37 +304,37 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
         animationTimeoutRef.current = timeoutId
       }
     } else {
-      // Deleting phase - realistic backspace speed
+      // Deleting phase - smooth, consistent backspace speed
       if (displayedText.length > 0) {
-        // Variable backspace speed (15-35ms) to feel more natural
-        const delay = 25 + Math.random() * 20
+        // Consistent delay for smooth deletion (20ms per character)
+        const delay = 20
         timeoutId = setTimeout(() => {
           const newText = displayedText.slice(0, -1)
           if (newText.length === 0) {
-            // Immediately clear when we reach empty - hide placeholder immediately
+            // Immediately clear when we reach empty
             setDisplayedText('')
             setIsBetweenExamples(true)
-            setShowPlaceholder(false) // Hide placeholder immediately
+            setShowPlaceholder(false)
             // Start next example after pause
             const nextTimeout = setTimeout(() => {
               setExampleIndex((prev) => (prev + 1) % shuffledExamples.length)
               setIsTyping(true)
               setIsBetweenExamples(false)
-            }, 800) // Slightly longer pause between examples
+            }, 800) // Pause between examples
             animationTimeoutRef.current = nextTimeout
           } else {
             setDisplayedText(newText)
-            setShowPlaceholder(false) // Keep placeholder hidden while deleting
+            setShowPlaceholder(false)
           }
         }, delay)
         animationTimeoutRef.current = timeoutId
       } else {
-        // Already empty - this shouldn't happen but handle it
+        // Already empty - transition to next example
         setDisplayedText('')
         setIsBetweenExamples(true)
         setShowPlaceholder(false)
         timeoutId = setTimeout(() => {
-          setExampleIndex((prev) => (prev + 1) % TRADING_EXAMPLES.length)
+          setExampleIndex((prev) => (prev + 1) % shuffledExamples.length)
           setIsTyping(true)
           setIsBetweenExamples(false)
         }, 800)
@@ -342,6 +345,9 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
     return () => {
       if (timeoutId) {
         clearTimeout(timeoutId)
+      }
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current)
         animationTimeoutRef.current = null
       }
     }
@@ -350,25 +356,25 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
   // Auto-scroll input container to show full text on mobile - smooth and consistent
   useEffect(() => {
     if (inputContainerRef.current && displayedText.length > 0) {
-      // Use requestAnimationFrame for consistent, immediate scrolling
-      // This ensures the scroll happens after DOM update but synchronously with typing
+      // Use double RAF for smoother scrolling - ensures DOM is fully updated
       const rafId = requestAnimationFrame(() => {
-        if (inputContainerRef.current) {
-          const container = inputContainerRef.current
-          const maxScroll = container.scrollWidth - container.clientWidth
-          
-          // Only scroll if content extends beyond visible area
-          if (maxScroll > 0) {
-            // Instant scroll (not smooth) to keep up with typing speed
-            // The CSS scroll-behavior: smooth will handle the visual smoothness
-            container.scrollLeft = maxScroll + 30
+        requestAnimationFrame(() => {
+          if (inputContainerRef.current) {
+            const container = inputContainerRef.current
+            const maxScroll = container.scrollWidth - container.clientWidth
+            
+            // Only scroll if content extends beyond visible area
+            if (maxScroll > 0) {
+              // Smooth scroll to end with small offset for cursor visibility
+              container.scrollLeft = maxScroll + 40
+            }
           }
-        }
+        })
       })
       
       return () => cancelAnimationFrame(rafId)
     }
-  }, [displayedText, showCursor])
+  }, [displayedText])
 
   // Force input to be empty and hide placeholder when displayedText is empty
   useEffect(() => {
@@ -2567,12 +2573,12 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               {/* Input Field */}
               <div 
                 ref={inputContainerRef}
-                className="bg-bloomberg-panel border border-terminal p-3 md:p-2 w-full overflow-x-auto input-container"
+                className="bg-bloomberg-panel border border-terminal p-3 md:p-2 w-full overflow-x-auto input-container relative"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
                 <div className="flex items-center gap-2 md:gap-2 pr-4" style={{ minWidth: 'max-content' }}>
                   <span className="text-[#8B5CF6] text-sm md:text-sm flex-shrink-0">&gt;</span>
-                  <span className="bg-transparent text-bloomberg-text font-mono text-sm md:text-sm whitespace-nowrap">
+                  <span className="bg-transparent text-bloomberg-text font-mono text-sm md:text-sm whitespace-nowrap flex-shrink-0">
                     {inputValue}
                   </span>
                   {showCursor && (
