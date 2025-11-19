@@ -682,24 +682,24 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
     <div className="absolute inset-0 bg-bloomberg-bg z-10">
       {/* Top Status Bar */}
       <div className="bg-bloomberg-panel border-b border-terminal h-auto md:h-6 flex items-center justify-between px-3 md:px-2 text-xs py-1.5 md:py-0">
-        <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
+        <div className="flex items-center gap-2 md:gap-4 flex-shrink-0 min-w-0">
           <img src="/catalyst-logo.svg" alt="Catalyst" className="h-6 w-6 md:h-4 md:w-4 flex-shrink-0 bg-transparent" style={{ backgroundColor: 'transparent' }} />
           <span className="text-bloomberg-orange font-bold text-base md:text-xs whitespace-nowrap">CATALYST</span>
           <span className="hidden lg:inline text-bloomberg-text-dim text-xs">v1.0.0</span>
           <span className="text-bloomberg-green text-sm md:text-xs">●</span>
           <span className="hidden lg:inline text-bloomberg-text-dim text-xs">ONLINE</span>
         </div>
-        <div className="flex items-center gap-1.5 md:gap-4 text-bloomberg-text-dim flex-shrink min-w-0">
+        <div className="flex items-center gap-1 md:gap-4 text-bloomberg-text-dim flex-shrink-0 min-w-0">
           <span className="hidden lg:inline text-xs">USER: TRADER_001</span>
           <span className="hidden lg:inline text-xs">|</span>
           <span suppressHydrationWarning className="hidden md:inline text-xs md:text-[10px]">{currentTime || '--:--:--'}</span>
           {/* Mobile: Connection Status next to CATALYST */}
-          <div className="md:hidden flex items-center gap-1.5 flex-shrink-0">
-            <div className="px-2 py-0.5 bg-bloomberg-green/20 text-bloomberg-green text-[9px] font-mono outline-none focus:outline-none font-semibold whitespace-nowrap">
-              ● POLYMARKET
+          <div className="md:hidden flex items-center gap-1 flex-shrink-0">
+            <div className="px-1.5 py-0.5 bg-bloomberg-green/20 text-bloomberg-green text-[8px] font-mono outline-none focus:outline-none font-semibold whitespace-nowrap">
+              ● POLYMARKET CONNECTED
             </div>
-            <div className="px-2 py-0.5 bg-bloomberg-green/20 text-bloomberg-green text-[9px] font-mono outline-none focus:outline-none font-semibold whitespace-nowrap">
-              ● HYPERLIQUID
+            <div className="px-1.5 py-0.5 bg-bloomberg-green/20 text-bloomberg-green text-[8px] font-mono outline-none focus:outline-none font-semibold whitespace-nowrap">
+              ● HYPERLIQUID CONNECTED
             </div>
           </div>
         </div>
