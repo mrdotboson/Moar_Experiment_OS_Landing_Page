@@ -686,7 +686,16 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
         <div className="flex items-center gap-2 md:gap-4 text-bloomberg-text-dim">
           <span className="hidden lg:inline text-xs">USER: TRADER_001</span>
           <span className="hidden lg:inline text-xs">|</span>
-          <span suppressHydrationWarning className="text-xs md:text-[10px]">{currentTime || '--:--:--'}</span>
+          <span suppressHydrationWarning className="hidden md:inline text-xs md:text-[10px]">{currentTime || '--:--:--'}</span>
+          {/* Mobile: Connection Status next to CATALYST */}
+          <div className="md:hidden flex items-center gap-1.5 flex-wrap">
+            <div className="px-2 py-0.5 bg-bloomberg-green/20 text-bloomberg-green text-[8px] font-mono outline-none focus:outline-none">
+              ● POLYMARKET CONNECTED
+            </div>
+            <div className="px-2 py-0.5 bg-bloomberg-green/20 text-bloomberg-green text-[8px] font-mono outline-none focus:outline-none">
+              ● HYPERLIQUID CONNECTED
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2538,17 +2547,6 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             </div>
           )}
 
-          {/* Mobile Connection Status - Below Ticker */}
-          <div className="md:hidden bg-bloomberg-bg border-b border-terminal px-4 py-2.5 flex-shrink-0">
-            <div className="flex items-center gap-2 flex-wrap justify-end">
-              <div className="px-2.5 py-1 bg-bloomberg-green/20 text-bloomberg-green text-[10px] font-mono outline-none focus:outline-none">
-                ● POLYMARKET CONNECTED
-              </div>
-              <div className="px-2.5 py-1 bg-bloomberg-green/20 text-bloomberg-green text-[10px] font-mono outline-none focus:outline-none">
-                ● HYPERLIQUID CONNECTED
-              </div>
-            </div>
-          </div>
 
           {/* Main Input Area */}
           <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[100px] md:pb-0" style={{ marginTop: 'clamp(-3vh, -5vh, 0px)' }}>
