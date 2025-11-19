@@ -33,11 +33,24 @@ body {
   background: var(--bloomberg-panel);
   color: var(--bloomberg-text);
   font-family: 'Courier New', 'Courier', 'Monaco', 'Menlo', 'Consolas', monospace;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.4;
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: auto;
-  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Scale up text on larger screens for better readability */
+@media (min-width: 1280px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1920px) {
+  html {
+    font-size: 18px;
+  }
 }
 
 /* Fix iPhone browser navigation bar area */

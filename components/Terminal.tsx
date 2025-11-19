@@ -1048,14 +1048,14 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           <div className="hidden md:block bg-bloomberg-bg border-b border-terminal px-4 py-1.5 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-[#8B5CF6] text-xs font-bold uppercase">Event-Aware Conditional Orders</div>
-                <div className="text-bloomberg-text-dim text-[9px] mt-0.5">Trade automatically when Polymarket events trigger + market conditions align</div>
+                <div className="text-[#8B5CF6] text-sm font-bold uppercase">Event-Aware Conditional Orders</div>
+                <div className="text-bloomberg-text-dim text-xs mt-0.5">Trade automatically when Polymarket events trigger + market conditions align</div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="px-2 py-0.5 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-[8px] font-mono">
+                <div className="px-2 py-0.5 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-xs font-mono">
                   ● POLYMARKET CONNECTED
                 </div>
-                <div className="px-2 py-0.5 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-[8px] font-mono">
+                <div className="px-2 py-0.5 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-xs font-mono">
                   ● HYPERLIQUID CONNECTED
                 </div>
               </div>
@@ -1066,7 +1066,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           {hyperliquidMarkets.length > 0 && !loadingHyperliquid && (
             <div className="hidden md:block bg-bloomberg-panel border-b border-terminal overflow-hidden relative h-8 flex-shrink-0">
               <div className="flex items-center h-full">
-                <div className="bg-bloomberg-green text-bloomberg-bg px-3 py-1 text-[9px] font-bold uppercase whitespace-nowrap z-10 flex-shrink-0">
+                <div className="bg-bloomberg-green text-bloomberg-bg px-3 py-1 text-xs font-bold uppercase whitespace-nowrap z-10 flex-shrink-0">
                   HYPERLIQUID
                 </div>
                 <div className="flex-1 overflow-hidden relative">
@@ -1104,16 +1104,16 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                           key={`${market.symbol}-${idx}`}
                           className="flex items-center gap-3 px-4 whitespace-nowrap"
                         >
-                          <div className="text-bloomberg-text text-[9px] font-bold">
+                          <div className="text-bloomberg-text text-xs font-bold">
                             {market.symbol}
                           </div>
-                          <div className="text-bloomberg-text text-[9px]">
+                          <div className="text-bloomberg-text text-xs">
                             ${priceFormatted}
                           </div>
-                          <div className={`${changeColor} text-[9px] font-bold`}>
+                          <div className={`${changeColor} text-xs font-bold`}>
                             {changeSign}{market.change24h.toFixed(2)}%
                           </div>
-                          <div className="text-bloomberg-text-dim text-[8px]">
+                          <div className="text-bloomberg-text-dim text-[10px]">
                             ${volumeM} vol
                           </div>
                           <div className="w-px h-4 bg-terminal"></div>
