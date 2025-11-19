@@ -39,8 +39,9 @@ function checkRateLimit(ip: string): boolean {
 
 // Initialize PostgreSQL connection pool
 // Connection pooling helps manage database connections efficiently
+// Note: Pool is created even if DATABASE_URL is not set yet (will fail on first connection attempt)
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL || '',
   // Connection pool settings
   max: 20, // Maximum number of clients in the pool
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
@@ -134,17 +135,20 @@ export async function POST(request: NextRequest) {
       : null
 
     // Check if DATABASE_URL is configured
+    // Log all DATABASE-related env vars for debugging (without values)
+    const dbEnvVars = Object.keys(process.env).filter(k => k.includes('DATABASE'))
+    console.log('DATABASE-related env vars found:', dbEnvVars)
+    console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL)
+    console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length || 0)
+    
     if (!process.env.DATABASE_URL) {
       console.error('DATABASE_URL is not set in environment variables')
-      console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('DATABASE')))
+      console.error('All env vars with DATABASE:', dbEnvVars)
       return NextResponse.json(
         { error: 'Database not configured. Please contact support.' },
         { status: 500 }
       )
     }
-    
-    // Log for debugging (don't log the actual URL for security)
-    console.log('DATABASE_URL is set:', process.env.DATABASE_URL ? 'Yes' : 'No')
 
     // Ensure table exists (in case it wasn't created yet)
     try {
