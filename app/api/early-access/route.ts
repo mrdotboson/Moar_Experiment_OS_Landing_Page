@@ -116,13 +116,21 @@ export async function POST(request: NextRequest) {
     if (!process.env.DATABASE_URL) {
       console.error('DATABASE_URL is not set')
       return NextResponse.json(
-        { error: 'Server configuration error' },
+        { error: 'Database not configured. Please contact support.' },
         { status: 500 }
       )
     }
 
     // Ensure table exists (in case it wasn't created yet)
-    await ensureTableExists()
+    try {
+      await ensureTableExists()
+    } catch (tableError: any) {
+      console.error('Table creation error:', tableError)
+      return NextResponse.json(
+        { error: 'Database setup error. Please try again later.' },
+        { status: 500 }
+      )
+    }
 
     // Insert into database using parameterized query (prevents SQL injection)
     const client = await pool.connect()
@@ -153,6 +161,15 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: 'This email is already registered' },
           { status: 409 }
+        )
+      }
+      
+      // Connection errors
+      if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+        console.error('Database connection error:', error.message)
+        return NextResponse.json(
+          { error: 'Database connection failed. Please try again later.' },
+          { status: 503 }
         )
       }
       

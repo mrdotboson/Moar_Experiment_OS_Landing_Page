@@ -2540,11 +2540,11 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
 
           {/* Mobile Connection Status - Below Ticker */}
           <div className="md:hidden bg-bloomberg-bg border-b border-terminal px-4 py-2.5 flex-shrink-0">
-            <div className="flex items-center gap-2 flex-wrap justify-center">
-              <div className="px-2.5 py-1 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-[10px] font-mono">
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              <div className="px-2.5 py-1 bg-bloomberg-green/20 text-bloomberg-green text-[10px] font-mono">
                 ● POLYMARKET CONNECTED
               </div>
-              <div className="px-2.5 py-1 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-[10px] font-mono">
+              <div className="px-2.5 py-1 bg-bloomberg-green/20 text-bloomberg-green text-[10px] font-mono">
                 ● HYPERLIQUID CONNECTED
               </div>
             </div>
@@ -2611,10 +2611,10 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             </div>
           </div>
 
-          {/* Early Access Modal */}
+          {/* Early Access Modal - Mobile First */}
           {showEarlyAccessModal && (
             <div 
-              className="absolute inset-0 bg-bloomberg-bg/95 z-50 flex items-center justify-center p-0 md:p-8"
+              className="fixed inset-0 bg-bloomberg-bg z-50 flex items-end md:items-center justify-center p-0 md:p-8 safe-area-top safe-area-bottom"
               onClick={() => {
                 setShowEarlyAccessModal(false)
                 setEarlyAccessEmail('')
@@ -2623,11 +2623,17 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               }}
             >
               <div 
-                className="bg-bloomberg-panel border-2 border-[#8B5CF6] max-w-lg w-full h-full md:h-auto md:max-h-[90vh] p-6 md:p-6 overflow-y-auto flex flex-col"
+                className="bg-bloomberg-panel border-t-2 md:border-2 border-[#8B5CF6] w-full md:max-w-lg md:h-auto md:max-h-[90vh] md:rounded-none p-6 md:p-6 overflow-y-auto flex flex-col md:rounded shadow-lg"
                 onClick={(e) => e.stopPropagation()}
+                style={{ 
+                  minHeight: '60vh',
+                  maxHeight: '90vh',
+                  borderTopLeftRadius: '1rem',
+                  borderTopRightRadius: '1rem',
+                }}
               >
-                <div className="flex items-center justify-between mb-6 md:mb-4">
-                  <div className="text-[#8B5CF6] text-lg md:text-lg font-bold uppercase font-mono">EARLY ACCESS</div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="text-[#8B5CF6] text-lg font-bold uppercase font-mono">EARLY ACCESS</div>
                   <button
                     onClick={() => {
                       setShowEarlyAccessModal(false)
@@ -2635,7 +2641,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                       setEarlyAccessTelegram('')
                       setEarlyAccessSubmitted(false)
                     }}
-                    className="text-bloomberg-text-dim hover:text-bloomberg-text text-3xl md:text-xl font-bold leading-none min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center"
+                    className="text-bloomberg-text-dim hover:text-bloomberg-text text-3xl font-bold leading-none min-w-[44px] min-h-[44px] flex items-center justify-center"
                   >
                     ×
                   </button>
@@ -2643,14 +2649,14 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                 
                 {!earlyAccessSubmitted ? (
                   <>
-                    <div className="mb-6 md:mb-6 space-y-4 md:space-y-4 flex-1">
-                      <div className="text-bloomberg-text text-sm md:text-sm font-mono leading-relaxed">
+                    <div className="mb-6 space-y-5 flex-1">
+                      <div className="text-bloomberg-text text-sm font-mono leading-relaxed">
                         Join the waitlist to be among the first to trade with event-aware conditional orders.
                       </div>
                       
-                      <div className="space-y-4 md:space-y-3">
+                      <div className="space-y-5">
                         <div>
-                          <label className="block text-bloomberg-text-dim text-sm md:text-xs font-mono uppercase mb-2 md:mb-1">
+                          <label className="block text-bloomberg-text-dim text-xs font-mono uppercase mb-2.5">
                             EMAIL
                           </label>
                           <input
@@ -2658,13 +2664,15 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                             value={earlyAccessEmail}
                             onChange={(e) => setEarlyAccessEmail(e.target.value)}
                             placeholder="trader@example.com"
-                            className="w-full bg-bloomberg-bg border border-terminal px-4 py-3 md:px-3 md:py-2 text-bloomberg-text text-base md:text-sm font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim min-h-[44px] md:min-h-0"
+                            className="w-full bg-bloomberg-bg border border-terminal px-4 py-3.5 text-bloomberg-text text-base font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim min-h-[48px] rounded-none"
                             autoFocus
+                            autoComplete="email"
+                            inputMode="email"
                           />
                         </div>
                         
                         <div>
-                          <label className="block text-bloomberg-text-dim text-sm md:text-xs font-mono uppercase mb-2 md:mb-1">
+                          <label className="block text-bloomberg-text-dim text-xs font-mono uppercase mb-2.5">
                             TELEGRAM USERNAME (OPTIONAL)
                           </label>
                           <input
@@ -2672,13 +2680,14 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                             value={earlyAccessTelegram}
                             onChange={(e) => setEarlyAccessTelegram(e.target.value)}
                             placeholder="@username"
-                            className="w-full bg-bloomberg-bg border border-terminal px-4 py-3 md:px-3 md:py-2 text-bloomberg-text text-base md:text-sm font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim min-h-[44px] md:min-h-0"
+                            className="w-full bg-bloomberg-bg border border-terminal px-4 py-3.5 text-bloomberg-text text-base font-mono outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim min-h-[48px] rounded-none"
+                            autoComplete="username"
                           />
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-3 mt-auto">
+                    <div className="flex items-stretch gap-3 mt-auto pt-4">
                       <button
                         onClick={async (e) => {
                           e.preventDefault()
@@ -2696,20 +2705,22 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                                 }),
                               })
 
+                              const data = await response.json()
+                              
                               if (response.ok) {
                                 setEarlyAccessSubmitted(true)
                               } else {
-                                console.error('Failed to submit:', await response.text())
-                                alert('Failed to submit. Please try again.')
+                                console.error('Failed to submit:', data)
+                                alert(data.error || 'Failed to submit. Please try again.')
                               }
                             } catch (error) {
                               console.error('Error submitting:', error)
-                              alert('Failed to submit. Please try again.')
+                              alert('Failed to submit. Please check your connection and try again.')
                             }
                           }
                         }}
                         disabled={!earlyAccessEmail.trim()}
-                        className="flex-1 px-6 py-4 md:px-4 md:py-2.5 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] text-sm md:text-xs font-mono uppercase transition-colors cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] md:min-h-0"
+                        className="flex-1 px-6 py-4 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] hover:border-[#7C3AED] text-sm font-mono uppercase transition-colors cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed min-h-[52px]"
                       >
                         SUBMIT
                       </button>
@@ -2719,19 +2730,19 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                           setEarlyAccessEmail('')
                           setEarlyAccessTelegram('')
                         }}
-                        className="px-4 py-2.5 bg-bloomberg-bg border border-terminal text-bloomberg-text hover:border-bloomberg-text-dim text-xs font-mono uppercase transition-colors cursor-pointer"
+                        className="px-6 py-4 bg-bloomberg-bg border border-terminal text-bloomberg-text hover:border-bloomberg-text-dim text-sm font-mono uppercase transition-colors cursor-pointer min-h-[52px]"
                       >
                         CANCEL
                       </button>
                     </div>
                   </>
                 ) : (
-                  <div className="text-center py-8">
-                    <div className="text-bloomberg-green text-4xl mb-4">✓</div>
-                    <div className="text-bloomberg-text text-lg font-bold font-mono mb-2">
+                  <div className="text-center py-12 flex flex-col items-center justify-center flex-1">
+                    <div className="text-bloomberg-green text-5xl mb-6">✓</div>
+                    <div className="text-bloomberg-text text-xl font-bold font-mono mb-3">
                       YOU'RE ON THE LIST
                     </div>
-                    <div className="text-bloomberg-text-dim text-sm font-mono mb-6">
+                    <div className="text-bloomberg-text-dim text-base font-mono mb-8">
                       We'll notify you when Catalyst is ready.
                     </div>
                     <button
@@ -2741,7 +2752,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                         setEarlyAccessTelegram('')
                         setEarlyAccessSubmitted(false)
                       }}
-                      className="px-4 py-2 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] text-xs font-mono uppercase transition-colors cursor-pointer font-bold"
+                      className="px-8 py-4 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] text-sm font-mono uppercase transition-colors cursor-pointer font-bold min-h-[52px]"
                     >
                       CLOSE
                     </button>
@@ -3603,10 +3614,10 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
         ]
         
         return (positions.length > 0 || pendingOrders.length > 0) ? (
-          <div className="absolute bottom-0 md:bottom-[24px] left-0 md:left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-3 md:px-4 py-3 md:py-2.5 pb-[max(60px,calc(env(safe-area-inset-bottom)+32px))] flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[50vh] md:max-h-[200px] overflow-y-auto">
+          <div className="absolute bottom-0 md:bottom-[24px] left-0 md:left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-3 md:px-4 py-3 md:py-2.5 pb-[max(60px,calc(env(safe-area-inset-bottom)+32px))] flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[50vh] md:max-h-[200px] overflow-y-auto min-h-fit">
             {/* Conditional Orders Section */}
             {pendingOrders.length > 0 && (
-              <div className="mb-3 pb-3 border-b border-terminal/50">
+              <div className="mb-3 pb-3 border-b border-terminal/50 last:border-b-0 last:mb-0 last:pb-0">
                 <button
                   onClick={() => setShowPendingOrders(!showPendingOrders)}
                   className="w-full flex items-center justify-between mb-2 text-left"
