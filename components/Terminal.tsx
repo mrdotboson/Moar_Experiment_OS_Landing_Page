@@ -3831,30 +3831,9 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                       const isNearFill = Math.abs(priceDiff) < 2 // Within 2% of limit price
                       
                       return (
-                        <button
+                        <div
                           key={order.id}
-                          onClick={() => {
-                            // Create a position-like object for the modal
-                            const limitOrderAsPosition = {
-                              id: order.id,
-                              asset: order.asset,
-                              direction: order.direction,
-                              entryPrice: order.limitPrice,
-                              currentPrice: order.currentPrice,
-                              size: order.size,
-                              leverage: order.leverage,
-                              unrealizedPnl: 0,
-                              unrealizedPnlPercent: 0,
-                              entryTime: order.createdAt,
-                              isLimitOrder: true,
-                              limitPrice: order.limitPrice,
-                              orderType: order.orderType
-                            }
-                            setSelectedPosition(limitOrderAsPosition as any)
-                            setShowConditionBuilder(true)
-                            setShowPositionModal(true)
-                          }}
-                          className="bg-bloomberg-bg border border-bloomberg-blue/30 hover:border-bloomberg-blue transition-all cursor-pointer px-3 md:px-3 py-3 md:py-2 min-w-[260px] md:min-w-[240px] relative group"
+                          className="bg-bloomberg-bg border border-bloomberg-blue/30 px-3 md:px-3 py-3 md:py-2 min-w-[260px] md:min-w-[240px] relative group"
                         >
                           {/* Limit order indicator bar */}
                           <div className={`absolute top-0 left-0 right-0 h-0.5 ${isNearFill ? 'bg-bloomberg-orange' : 'bg-bloomberg-blue/60'} group-hover:bg-bloomberg-blue`}></div>
@@ -3935,7 +3914,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                               </span>
                             </div>
                           )}
-                        </button>
+                        </div>
                       )
                     })}
                     </div>
