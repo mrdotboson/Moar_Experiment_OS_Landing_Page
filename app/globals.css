@@ -116,6 +116,9 @@ body {
   animation: scroll-left 60s linear infinite;
   display: flex;
   width: fit-content;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .text-purple {
@@ -168,9 +171,12 @@ input[type="text"] {
 /* Input container scrolling on mobile - hide scrollbar */
 .input-container {
   -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
+  scroll-behavior: auto; /* Instant scroll to keep up with typing, not smooth animation */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
+  /* Ensure smooth scrolling performance */
+  will-change: scroll-position;
+  transform: translateZ(0); /* Force hardware acceleration */
 }
 
 .input-container::-webkit-scrollbar {

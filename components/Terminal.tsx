@@ -347,16 +347,26 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
     }
   }, [displayedText, isTyping, exampleIndex, flowState, shuffledExamples])
 
-  // Auto-scroll input container to show full text on mobile
+  // Auto-scroll input container to show full text on mobile - smooth and consistent
   useEffect(() => {
     if (inputContainerRef.current && displayedText.length > 0) {
-      // Scroll to the right to show the latest text with some padding for cursor visibility
-      // Use requestAnimationFrame to ensure DOM is updated
-      requestAnimationFrame(() => {
+      // Use requestAnimationFrame for consistent, immediate scrolling
+      // This ensures the scroll happens after DOM update but synchronously with typing
+      const rafId = requestAnimationFrame(() => {
         if (inputContainerRef.current) {
-          inputContainerRef.current.scrollLeft = inputContainerRef.current.scrollWidth + 20
+          const container = inputContainerRef.current
+          const maxScroll = container.scrollWidth - container.clientWidth
+          
+          // Only scroll if content extends beyond visible area
+          if (maxScroll > 0) {
+            // Instant scroll (not smooth) to keep up with typing speed
+            // The CSS scroll-behavior: smooth will handle the visual smoothness
+            container.scrollLeft = maxScroll + 30
+          }
         }
       })
+      
+      return () => cancelAnimationFrame(rafId)
     }
   }, [displayedText, showCursor])
 
@@ -1052,7 +1062,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                   HYPERLIQUID
                 </div>
                 <div className="flex-1 overflow-hidden relative">
-                  <div className="flex items-center h-full animate-scroll-left">
+                  <div className="flex items-center h-full animate-scroll-left" style={{ willChange: 'transform' }}>
                     {/* Show only BTC, ETH, SOL */}
                     {(() => {
                       // Filter for only BTC, ETH, SOL
@@ -1069,8 +1079,10 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                         return aPriority - bPriority
                       }).slice(0, 3)
                       
-                      // Duplicate for seamless scrolling
-                      return [...sortedMarkets, ...sortedMarkets].map((market, idx) => {
+                      // Create multiple duplicates for seamless looping (4 sets to prevent glitches)
+                      const duplicatedMarkets = [...sortedMarkets, ...sortedMarkets, ...sortedMarkets, ...sortedMarkets]
+                      
+                      return duplicatedMarkets.map((market, idx) => {
                       const volumeM = market.volume24hUsd >= 1000000 
                         ? (market.volume24hUsd / 1000000).toFixed(1) + 'M'
                         : (market.volume24hUsd / 1000).toFixed(0) + 'K'
@@ -2466,18 +2478,6 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             </div>
           )}
 
-          {/* Mobile Header - Connection Status Only */}
-          <div className="md:hidden bg-bloomberg-bg border-b border-terminal px-4 py-3 flex-shrink-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="px-2.5 py-1 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-[10px] font-mono">
-                ● POLYMARKET CONNECTED
-              </div>
-              <div className="px-2.5 py-1 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-[10px] font-mono">
-                ● HYPERLIQUID CONNECTED
-              </div>
-            </div>
-          </div>
-
           {/* Mobile Hyperliquid Ticker */}
           {hyperliquidMarkets.length > 0 && !loadingHyperliquid && (
             <div className="md:hidden bg-bloomberg-panel border-b border-terminal overflow-hidden relative h-11 flex-shrink-0">
@@ -2486,7 +2486,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                   HYPERLIQUID
                 </div>
                 <div className="flex-1 overflow-hidden relative">
-                  <div className="flex items-center h-full animate-scroll-left">
+                  <div className="flex items-center h-full animate-scroll-left" style={{ willChange: 'transform' }}>
                     {(() => {
                       const cryptoMarkets = hyperliquidMarkets.filter(market => {
                         const symbol = market.symbol.toUpperCase()
@@ -2500,7 +2500,10 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                         return aPriority - bPriority
                       }).slice(0, 3)
                       
-                      return [...sortedMarkets, ...sortedMarkets].map((market, idx) => {
+                      // Create multiple duplicates for seamless looping (4 sets to prevent glitches)
+                      const duplicatedMarkets = [...sortedMarkets, ...sortedMarkets, ...sortedMarkets, ...sortedMarkets]
+                      
+                      return duplicatedMarkets.map((market, idx) => {
                         const volumeM = market.volume24hUsd >= 1000000 
                           ? (market.volume24hUsd / 1000000).toFixed(1) + 'M'
                           : (market.volume24hUsd / 1000).toFixed(0) + 'K'
@@ -2536,8 +2539,20 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             </div>
           )}
 
+          {/* Mobile Connection Status - Below Ticker */}
+          <div className="md:hidden bg-bloomberg-bg border-b border-terminal px-4 py-2.5 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-wrap justify-center">
+              <div className="px-2.5 py-1 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-[10px] font-mono">
+                ● POLYMARKET CONNECTED
+              </div>
+              <div className="px-2.5 py-1 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-[10px] font-mono">
+                ● HYPERLIQUID CONNECTED
+              </div>
+            </div>
+          </div>
+
           {/* Main Input Area */}
-          <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[120px] md:pb-0" style={{ marginTop: 'clamp(-3vh, -5vh, 0px)' }}>
+          <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[100px] md:pb-0" style={{ marginTop: 'clamp(-3vh, -5vh, 0px)' }}>
             <div className="w-full max-w-5xl px-4 md:px-0">
               {/* Tagline - Above CATALYST */}
               <div className="mb-5 md:mb-3 flex items-center gap-2">
@@ -3570,7 +3585,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
         ]
         
         return (positions.length > 0 || pendingOrders.length > 0) ? (
-          <div className="absolute bottom-0 md:bottom-[24px] left-0 md:left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-3 md:px-4 py-3 md:py-2.5 pb-[max(80px,calc(env(safe-area-inset-bottom)+48px))] flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[50vh] md:max-h-[200px] overflow-y-auto">
+          <div className="absolute bottom-0 md:bottom-[24px] left-0 md:left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-3 md:px-4 py-3 md:py-2.5 pb-[max(60px,calc(env(safe-area-inset-bottom)+32px))] flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[50vh] md:max-h-[200px] overflow-y-auto">
             {/* Conditional Orders Section */}
             {pendingOrders.length > 0 && (
               <div className="mb-3 pb-3 border-b border-terminal/50">
