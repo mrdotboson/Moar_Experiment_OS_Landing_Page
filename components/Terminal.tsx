@@ -2623,11 +2623,11 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               }}
             >
               <div 
-                className="bg-bloomberg-panel border-t-2 md:border-2 border-[#8B5CF6] w-full md:max-w-lg md:h-auto md:max-h-[90vh] md:rounded-none p-6 md:p-6 overflow-y-auto flex flex-col md:rounded shadow-lg"
+                className="bg-bloomberg-panel border-t-2 md:border-2 border-[#8B5CF6] w-full md:max-w-lg md:h-auto md:max-h-[90vh] md:rounded-none p-4 md:p-6 overflow-y-auto flex flex-col md:rounded shadow-lg"
                 onClick={(e) => e.stopPropagation()}
                 style={{ 
-                  minHeight: '60vh',
-                  maxHeight: '90vh',
+                  minHeight: 'auto',
+                  maxHeight: '85vh',
                   borderTopLeftRadius: '1rem',
                   borderTopRightRadius: '1rem',
                 }}
@@ -2737,12 +2737,12 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     </div>
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center flex-1 py-8 md:py-12">
-                    <div className="text-bloomberg-green text-5xl md:text-6xl mb-6 text-center">✓</div>
-                    <div className="text-bloomberg-text text-xl md:text-2xl font-bold font-mono mb-3 text-center">
+                  <div className="flex flex-col items-center justify-center flex-1 py-4 md:py-12 min-h-0">
+                    <div className="text-bloomberg-green text-4xl md:text-6xl mb-4 md:mb-6 text-center">✓</div>
+                    <div className="text-bloomberg-text text-lg md:text-2xl font-bold font-mono mb-2 md:mb-3 text-center">
                       YOU'RE ON THE LIST
                     </div>
-                    <div className="text-bloomberg-text-dim text-base md:text-lg font-mono mb-8 text-center px-4">
+                    <div className="text-bloomberg-text-dim text-sm md:text-lg font-mono mb-6 md:mb-8 text-center px-2 md:px-4">
                       We'll notify you when Catalyst is ready.
                     </div>
                     <button
@@ -2752,7 +2752,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                         setEarlyAccessTelegram('')
                         setEarlyAccessSubmitted(false)
                       }}
-                      className="w-full md:w-auto px-8 py-4 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] text-sm font-mono uppercase transition-colors cursor-pointer font-bold min-h-[52px]"
+                      className="w-full md:w-auto px-6 md:px-8 py-3 md:py-4 bg-[#8B5CF6] border border-[#8B5CF6] text-white hover:bg-[#7C3AED] text-sm font-mono uppercase transition-colors cursor-pointer font-bold min-h-[48px] md:min-h-[52px]"
                     >
                       CLOSE
                     </button>
