@@ -700,7 +700,6 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           <div className="mb-3 pb-2 border-b border-terminal">
             <div className="flex items-center justify-between mb-1">
               <div className="text-[#8B5CF6] font-bold text-[10px] uppercase">POLYMARKET EVENT</div>
-              <div className="text-bloomberg-red text-[8px] font-mono">REQUIRED</div>
             </div>
             <div className="pl-2 text-[10px] space-y-0.5 text-bloomberg-text">
               <div className="font-mono">if Polymarket "Event" probability ≥ X%</div>
@@ -2681,13 +2680,32 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     
                     <div className="flex items-center gap-3 mt-auto">
                       <button
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.preventDefault()
                           e.stopPropagation()
                           if (earlyAccessEmail.trim()) {
-                            // Here you would typically send to your backend
-                            console.log('Early access signup:', { email: earlyAccessEmail, telegram: earlyAccessTelegram })
-                            setEarlyAccessSubmitted(true)
+                            try {
+                              const response = await fetch('/api/early-access', {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                  email: earlyAccessEmail,
+                                  telegram: earlyAccessTelegram,
+                                }),
+                              })
+
+                              if (response.ok) {
+                                setEarlyAccessSubmitted(true)
+                              } else {
+                                console.error('Failed to submit:', await response.text())
+                                alert('Failed to submit. Please try again.')
+                              }
+                            } catch (error) {
+                              console.error('Error submitting:', error)
+                              alert('Failed to submit. Please try again.')
+                            }
                           }
                         }}
                         disabled={!earlyAccessEmail.trim()}
