@@ -2555,7 +2555,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
 
 
           {/* Main Input Area */}
-          <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[100px] md:pb-0" style={{ marginTop: 'clamp(-3vh, -5vh, 0px)' }}>
+          <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[80px] md:pb-0" style={{ marginTop: 'clamp(-3vh, -5vh, 0px)' }}>
             <div className="w-full max-w-5xl px-4 md:px-0">
               {/* Tagline - Above CATALYST */}
               <div className="mb-5 md:mb-3 flex items-center gap-2">
@@ -3583,8 +3583,8 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             </div>
           )}
 
-          {/* Bottom Status Bar */}
-          <div className="bg-bloomberg-panel border-t border-terminal h-6 flex items-center justify-between px-2 text-xs flex-shrink-0 z-30">
+          {/* Bottom Status Bar - Hidden on mobile */}
+          <div className="hidden md:flex bg-bloomberg-panel border-t border-terminal h-6 items-center justify-between px-2 text-xs flex-shrink-0 z-30">
             <div className="flex items-center gap-4 text-bloomberg-text-dim">
               <span className={showHelp ? 'text-bloomberg-orange' : ''}>F1: Help</span>
               <span className={showExamples ? 'text-bloomberg-orange' : ''}>F2: Examples</span>
