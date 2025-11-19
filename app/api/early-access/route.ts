@@ -40,24 +40,35 @@ function checkRateLimit(ip: string): boolean {
 // Initialize PostgreSQL connection pool
 // Connection pooling helps manage database connections efficiently
 // Note: Pool is created even if DATABASE_URL is not set yet (will fail on first connection attempt)
+// Use DATABASE_PUBLIC_URL if available (for Railway), otherwise fall back to DATABASE_URL
+const getConnectionString = () => {
+  // Railway provides both DATABASE_URL (internal) and DATABASE_PUBLIC_URL (public)
+  // Use public URL if internal fails, or if public is explicitly provided
+  return process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL || ''
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || '',
+  connectionString: getConnectionString(),
   // Connection pool settings
   max: 20, // Maximum number of clients in the pool
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 10000, // Increased timeout for Railway internal connections
-  // Railway internal connections (railway.internal) don't need SSL
+  connectionTimeoutMillis: 10000, // Connection timeout
   // Railway public connections need SSL with rejectUnauthorized: false
-  ssl: process.env.DATABASE_URL?.includes('railway') && !process.env.DATABASE_URL?.includes('railway.internal')
+  // Internal connections (railway.internal) typically don't need SSL, but if DNS fails, use public URL
+  ssl: (process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL)?.includes('railway') && 
+       !(process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL)?.includes('railway.internal')
     ? { rejectUnauthorized: false }
-    : false, // Explicitly set to false for internal connections
+    : (process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL)?.includes('railway')
+    ? { rejectUnauthorized: false } // Use SSL for Railway public URLs
+    : undefined,
 })
 
 // Initialize database table on first use
 async function ensureTableExists() {
-  // Check if DATABASE_URL is set
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL environment variable is not set')
+  // Check if DATABASE_URL or DATABASE_PUBLIC_URL is set
+  const connectionString = process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL
+  if (!connectionString) {
+    throw new Error('DATABASE_URL or DATABASE_PUBLIC_URL environment variable is not set')
   }
 
   let client
@@ -134,15 +145,17 @@ export async function POST(request: NextRequest) {
       ? sanitizeInput(telegram, 100) 
       : null
 
-    // Check if DATABASE_URL is configured
+    // Check if DATABASE_URL or DATABASE_PUBLIC_URL is configured
     // Log all DATABASE-related env vars for debugging (without values)
     const dbEnvVars = Object.keys(process.env).filter(k => k.includes('DATABASE'))
+    const connectionString = process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL
     console.log('DATABASE-related env vars found:', dbEnvVars)
     console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL)
-    console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length || 0)
+    console.log('DATABASE_PUBLIC_URL exists:', !!process.env.DATABASE_PUBLIC_URL)
+    console.log('Using connection string:', connectionString ? 'Yes' : 'No')
     
-    if (!process.env.DATABASE_URL) {
-      console.error('DATABASE_URL is not set in environment variables')
+    if (!connectionString) {
+      console.error('Neither DATABASE_URL nor DATABASE_PUBLIC_URL is set in environment variables')
       console.error('All env vars with DATABASE:', dbEnvVars)
       return NextResponse.json(
         { error: 'Database not configured. Please contact support.' },
