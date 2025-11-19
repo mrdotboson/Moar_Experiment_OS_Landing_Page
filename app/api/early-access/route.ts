@@ -44,8 +44,12 @@ const pool = new Pool({
   // Connection pool settings
   max: 20, // Maximum number of clients in the pool
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection cannot be established
-  ssl: process.env.DATABASE_URL?.includes('railway') ? { rejectUnauthorized: false } : undefined,
+  connectionTimeoutMillis: 10000, // Increased timeout for Railway internal connections
+  // Railway internal connections (railway.internal) don't need SSL
+  // Railway public connections need SSL with rejectUnauthorized: false
+  ssl: process.env.DATABASE_URL?.includes('railway') && !process.env.DATABASE_URL?.includes('railway.internal')
+    ? { rejectUnauthorized: false }
+    : false, // Explicitly set to false for internal connections
 })
 
 // Initialize database table on first use
