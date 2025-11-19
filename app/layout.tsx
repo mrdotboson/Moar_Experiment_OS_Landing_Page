@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Catalyst Terminal - Strategy Compiler',
-  description: 'Natural language → compiled strategy logic → simulation',
+  title: 'Catalyst - Event-Aware Conditional Orders',
+  description: 'React faster to the world\'s changing probabilities. Trade automatically when Polymarket events trigger and market conditions align.',
   viewport: {
     width: 'device-width',
     initialScale: 1,
