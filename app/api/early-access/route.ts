@@ -219,7 +219,9 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     } finally {
-      client.release()
+      if (client) {
+        client.release()
+      }
     }
   } catch (error: any) {
     // Log error without exposing sensitive details
