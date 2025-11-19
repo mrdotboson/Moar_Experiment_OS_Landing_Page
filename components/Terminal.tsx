@@ -2555,7 +2555,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
 
 
           {/* Main Input Area */}
-          <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[80px] md:pb-0" style={{ marginTop: 'clamp(-3vh, -5vh, 0px)' }}>
+          <div className="flex-1 flex flex-col justify-start md:justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[80px] md:pb-0 pt-6 md:pt-0">
             <div className="w-full max-w-5xl px-4 md:px-0">
               {/* Tagline - Above CATALYST */}
               <div className="mb-5 md:mb-3 flex items-center gap-2">
