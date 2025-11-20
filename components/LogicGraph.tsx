@@ -211,7 +211,7 @@ export default function LogicGraph({ strategy, active }: LogicGraphProps) {
       {/* Top Status Bar */}
       <div className="bg-bloomberg-panel border-b border-terminal h-6 flex items-center justify-between px-2 text-xs">
         <div className="flex items-center gap-4">
-          <span className="text-[#8B5CF6] font-bold">CATALYST</span>
+          <span className="text-[#8B5CF6] font-bold">SENTIENT</span>
           <span className="text-bloomberg-text-dim">LOGIC VISUALIZATION</span>
           <span className="text-bloomberg-green">●</span>
           <span className="text-bloomberg-text-dim">3D GRAPH</span>

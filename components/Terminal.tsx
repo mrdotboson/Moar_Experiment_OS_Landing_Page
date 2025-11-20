@@ -682,8 +682,8 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
       {/* Top Status Bar */}
       <div className="bg-bloomberg-panel border-b border-terminal h-auto md:h-6 flex items-center justify-between px-3 md:px-2 text-xs py-1.5 md:py-0">
         <div className="flex items-center gap-2 md:gap-4 flex-shrink-0 min-w-0">
-          <img src="/catalyst-logo.svg" alt="Catalyst" className="h-6 w-6 md:h-4 md:w-4 flex-shrink-0 bg-transparent" style={{ backgroundColor: 'transparent' }} />
-          <span className="text-bloomberg-orange font-bold text-base md:text-xs whitespace-nowrap">CATALYST</span>
+          <img src="/catalyst-logo.svg" alt="Sentient" className="h-6 w-6 md:h-4 md:w-4 flex-shrink-0 bg-transparent" style={{ backgroundColor: 'transparent' }} />
+          <span className="text-bloomberg-orange font-bold text-base md:text-xs whitespace-nowrap">SENTIENT</span>
           <span className="hidden lg:inline text-bloomberg-text-dim text-xs">v1.0.0</span>
           <span className="text-bloomberg-green text-sm md:text-xs">●</span>
           <span className="hidden lg:inline text-bloomberg-text-dim text-xs">ONLINE</span>
@@ -779,7 +779,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                     <>
                       {marketsLastUpdated && (
                         <div className="text-bloomberg-text-dim text-[7px] mb-1 italic">
-                          Updated {marketsLastUpdated.toLocaleTimeString()}
+                          Updated {marketsLastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
                           {marketSearchQuery.trim() && ` • ${polymarketMarkets.length} results`}
                         </div>
                       )}
@@ -853,14 +853,17 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             </div>
             {expandedSections.examples && (
               <div className="pl-2 text-[10px] space-y-1 mt-1">
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long BTC 3x if "Bitcoin ETF approval" probability ≥ 70% and OI rises 5% over 24h')}>
-                  Long BTC 3x if "Bitcoin ETF approval" probability ≥ 70% and OI rises 5% over 24h
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close all positions if Polymarket "Fed rate hike" probability ≥ 85%')}>
+                  Close all positions if Polymarket "Fed rate hike" probability ≥ 85%
                 </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Short BTC if "Fed rate hike" probability ≥ 90% and price above $102k')}>
-                  Short BTC if "Fed rate hike" probability ≥ 90% and price above $102k
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long ETH-PERP 5x if Polymarket "Ethereum ETF Approval" probability ≥ 75%')}>
+                  Long ETH-PERP 5x if Polymarket "Ethereum ETF Approval" probability ≥ 75%
                 </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close all positions if "China attacks Taiwan" probability ≥ 65%')}>
-                  Close all positions if "China attacks Taiwan" probability ≥ 65%
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Arbitrage funding rate if spread >0.02%')}>
+                  Arbitrage funding rate if spread >0.02%
+                </div>
+                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Exit position if OI drops 10% over 24h or price breaks support')}>
+                  Exit position if OI drops 10% over 24h or price breaks support
                 </div>
               </div>
             )}
@@ -1053,8 +1056,8 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           <div className="hidden md:block bg-bloomberg-bg border-b border-terminal px-4 py-1.5 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-[#8B5CF6] text-sm font-bold uppercase">Event-Aware Conditional Orders</div>
-                <div className="text-bloomberg-text-dim text-xs mt-0.5">Trade automatically when Polymarket events trigger + market conditions align</div>
+                <div className="text-[#8B5CF6] text-sm font-bold uppercase">SENTIENT TERMINAL</div>
+                <div className="text-bloomberg-text-dim text-xs mt-0.5">Autonomous trading terminal</div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="px-2 py-0.5 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-xs font-mono">
@@ -1130,7 +1133,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                 </div>
                 {hyperliquidLastUpdated && (
                   <div className="text-bloomberg-text-dim text-[7px] px-2 whitespace-nowrap z-10 flex-shrink-0 bg-bloomberg-panel">
-                    {hyperliquidLastUpdated.toLocaleTimeString()}
+                    {hyperliquidLastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
                   </div>
                 )}
               </div>
@@ -2556,17 +2559,21 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
           {/* Main Input Area */}
           <div className="flex-1 flex flex-col justify-start md:justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[80px] md:pb-0 pt-20 md:pt-0">
             <div className="w-full max-w-5xl px-4 md:px-0">
-              {/* Tagline - Above CATALYST */}
+              {/* Title */}
+              <div className="mb-5 md:mb-3 flex flex-col gap-1">
+                <div className="text-[#8B5CF6] font-mono text-lg md:text-lg font-bold">SENTIENT TERMINAL</div>
+              </div>
+              
+              {/* Main Tagline */}
               <div className="mb-5 md:mb-3 flex items-center gap-2">
                 <div className="flex flex-wrap items-center gap-2 text-base md:text-base font-mono leading-relaxed">
-                  <span className="text-bloomberg-text font-bold">React faster to the world's</span>
-                  <span className="text-[#8B5CF6] font-bold">changing probabilities.</span>
+                  <span className="text-bloomberg-text font-bold">Your autonomous trading terminal.</span>
                 </div>
               </div>
               
               {/* Prompt Line - Optimized */}
               <div className="mb-3 md:mb-3 flex items-center gap-2">
-                <span className="text-[#8B5CF6] font-mono text-sm md:text-sm font-bold">CATALYST&gt;</span>
+                <span className="text-[#8B5CF6] font-mono text-sm md:text-sm font-bold">SENTIENT&gt;</span>
               </div>
 
               {/* Input Field */}
@@ -2604,7 +2611,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    window.open('https://twitter.com/use_catalyst', '_blank', 'noopener,noreferrer')
+                    window.open('https://twitter.com/use_sentient', '_blank', 'noopener,noreferrer')
                   }}
                   className="px-6 py-4 md:px-4 md:py-2 bg-bloomberg-panel border border-terminal text-bloomberg-text hover:bg-bloomberg-bg hover:border-[#8B5CF6] text-sm md:text-xs font-mono uppercase transition-colors cursor-pointer text-center min-h-[44px] md:min-h-0"
                 >
@@ -2654,7 +2661,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                   <>
                     <div className="mb-6 space-y-5 flex-1">
                       <div className="text-bloomberg-text text-sm font-mono leading-relaxed">
-                        Join the waitlist to be among the first to trade with event-aware conditional orders.
+                        Join the waitlist to be among the first to use the autonomous trading terminal.
                       </div>
                       
                       <div className="space-y-5">
@@ -2746,7 +2753,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                       YOU'RE ON THE LIST
                     </div>
                     <div className="text-bloomberg-text-dim text-sm md:text-lg font-mono mb-6 md:mb-8 text-center px-2 md:px-4">
-                      We'll notify you when Catalyst is ready.
+                      We'll notify you when Sentient is ready.
                     </div>
                     <button
                       onClick={() => {
@@ -2841,7 +2848,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                       <span>●</span>
                       <span>Connected</span>
                       <span className="text-bloomberg-text-dim">•</span>
-                      <span className="text-bloomberg-text-dim">Updated {marketsLastUpdated.toLocaleTimeString()}</span>
+                      <span className="text-bloomberg-text-dim">Updated {marketsLastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
                     </div>
                   )}
                   {(marketSearchQuery.trim() || selectedCategory) && (

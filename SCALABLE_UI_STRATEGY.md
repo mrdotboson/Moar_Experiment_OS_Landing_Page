@@ -304,7 +304,7 @@ const TEMPLATES: StrategyTemplate[] = [
    - Group automations by type
    - Allow filtering by type
 
-3. **In Catalyst Reveal:**
+3. **In Sentient Reveal:**
    - Show strategy type in position cards
    - Group positions by strategy type
    - Type-specific monitoring panels
@@ -475,7 +475,7 @@ const PANEL_REGISTRY: MonitoringPanel[] = [
    - Condition: Funding rate below -0.01%
    - Additional: Price above $3000
 5. Command generated: "Long ETH if funding rate below -0.01% and price above $3000"
-6. In Catalyst Reveal:
+6. In Sentient Reveal:
    - Shows funding rate monitor panel
    - Shows position tracker
    - Hides event status panel

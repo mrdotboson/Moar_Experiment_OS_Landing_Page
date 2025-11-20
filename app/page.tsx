@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import Terminal from '@/components/Terminal'
 import ParsingAnimation from '@/components/ParsingAnimation'
 import StrategySpec from '@/components/StrategySpec'
-import CatalystReveal from '@/components/CatalystReveal'
+import SentientReveal from '@/components/CatalystReveal'
 import Particles from '@/components/Particles'
 import { parseStrategy } from '@/lib/strategyParser'
 
@@ -218,7 +218,7 @@ export default function Home() {
 
       {/* Final Reveal - includes Backtest tab */}
       {flowState === 'reveal' && parsedStrategy && (
-        <CatalystReveal 
+        <SentientReveal 
           userInput={userInput} 
           strategy={parsedStrategy} 
           onReset={resetFlow}
