@@ -5,14 +5,14 @@ import { ParsedStrategy } from '@/lib/strategyParser'
 import { getUIAdaptations } from '@/lib/strategyType'
 import Simulation from './Simulation'
 
-interface SentientRevealProps {
+interface DeployRevealProps {
   userInput: string
   strategy: ParsedStrategy
   onReset?: () => void
   onStrategyUpdate?: (updated: ParsedStrategy) => void
 }
 
-export default function SentientReveal({ userInput, strategy, onReset, onStrategyUpdate }: SentientRevealProps) {
+export default function DeployReveal({ userInput, strategy, onReset, onStrategyUpdate }: DeployRevealProps) {
   const [currentTime, setCurrentTime] = useState('')
   const [activeTab, setActiveTab] = useState<'monitoring' | 'backtest' | 'positions'>('monitoring')
   const [stopLoss, setStopLoss] = useState(String(strategy.stopLoss))
@@ -95,7 +95,7 @@ export default function SentientReveal({ userInput, strategy, onReset, onStrateg
       {/* Top Status Bar */}
       <div className="bg-bloomberg-panel border-b border-terminal h-6 flex items-center justify-between px-2 text-xs">
         <div className="flex items-center gap-4">
-          <span className="text-[#8B5CF6] font-bold">SENTIENT TERMINAL</span>
+          <span className="text-[#8B5CF6] font-bold">DEPLOY TERMINAL</span>
           <span className="text-bloomberg-text-dim">{uiAdaptations.strategyLabel}</span>
           <span className="text-bloomberg-green">●</span>
           <span className="text-bloomberg-text-dim">READY TO DEPLOY</span>

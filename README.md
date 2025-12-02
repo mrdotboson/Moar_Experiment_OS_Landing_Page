@@ -1,6 +1,6 @@
-# Sentient Terminal Interactive Website
+# Deploy Terminal Interactive Website
 
-An extraordinary interactive landing experience that visually demonstrates Sentient Terminal's core product: natural language → compiled strategy logic → simulation.
+An extraordinary interactive landing experience that visually demonstrates Deploy Terminal's core product: natural language → compiled strategy logic → simulation.
 
 ## Getting Started
 

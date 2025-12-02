@@ -133,3 +133,4 @@ if (data.token !== SECRET_TOKEN) {
 For your use case (early access signups with emails), **both are acceptable**, but service account keys are the gold standard for production apps handling user data.
 
 
+

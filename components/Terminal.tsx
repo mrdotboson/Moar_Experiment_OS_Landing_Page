@@ -439,7 +439,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [availableCategories, setAvailableCategories] = useState<string[]>([])
   const [showMarketRules, setShowMarketRules] = useState(false)
-  const [showPendingOrders, setShowPendingOrders] = useState(false)
+  const [showActiveStrategies, setShowActiveStrategies] = useState(false)
   const [eventSearchQuery, setEventSearchQuery] = useState('') // For searching events in position modal
   const [showEarlyAccessModal, setShowEarlyAccessModal] = useState(false)
   const [earlyAccessEmail, setEarlyAccessEmail] = useState('')
@@ -679,384 +679,15 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
 
   return (
     <div className="absolute inset-0 bg-bloomberg-bg z-10">
-      {/* Top Status Bar */}
-      <div className="bg-bloomberg-panel border-b border-terminal h-auto md:h-6 flex items-center justify-between px-3 md:px-2 text-xs py-1.5 md:py-0">
-        <div className="flex items-center gap-2 md:gap-4 flex-shrink-0 min-w-0">
-          <img src="/catalyst-logo.svg" alt="Sentient" className="h-6 w-6 md:h-4 md:w-4 flex-shrink-0 bg-transparent" style={{ backgroundColor: 'transparent' }} />
-          <span className="text-bloomberg-orange font-bold text-base md:text-xs whitespace-nowrap">SENTIENT</span>
-          <span className="hidden lg:inline text-bloomberg-text-dim text-xs">v1.0.0</span>
-          <span className="text-bloomberg-green text-sm md:text-xs">●</span>
-          <span className="hidden lg:inline text-bloomberg-text-dim text-xs">ONLINE</span>
-        </div>
-        <div className="flex items-center gap-1 md:gap-4 text-bloomberg-text-dim flex-shrink-0 min-w-0">
-          <span className="hidden lg:inline text-xs">USER: TRADER_001</span>
-          <span className="hidden lg:inline text-xs">|</span>
-          <span suppressHydrationWarning className="hidden md:inline text-xs md:text-[10px]">{currentTime || '--:--:--'}</span>
-          {/* Mobile: Connection Status next to CATALYST */}
-          <div className="md:hidden flex items-center gap-1 flex-shrink-0">
-            <div className="px-1.5 py-0.5 bg-bloomberg-green/20 text-bloomberg-green text-[8px] font-mono outline-none focus:outline-none font-semibold whitespace-nowrap">
-              ● POLYMARKET CONNECTED
-            </div>
-            <div className="px-1.5 py-0.5 bg-bloomberg-green/20 text-bloomberg-green text-[8px] font-mono outline-none focus:outline-none font-semibold whitespace-nowrap">
-              ● HYPERLIQUID CONNECTED
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Terminal Area */}
-      <div className="flex-1 md:h-[calc(100%-24px)] flex overflow-hidden relative min-h-0">
-        {/* Left Sidebar - Optimized Command Reference */}
-        <div className="hidden md:block absolute left-0 top-0 bottom-0 w-64 bg-bloomberg-panel border-r border-terminal p-3 text-xs overflow-y-auto z-10">
-          <div className="text-[#8B5CF6] font-bold mb-3 uppercase text-xs border-b border-terminal pb-2">Command Reference</div>
-          
-          {/* Priority 1: Polymarket Event (Always Visible) */}
-          <div className="mb-3 pb-2 border-b border-terminal">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[#8B5CF6] font-bold text-[10px] uppercase">POLYMARKET EVENT</div>
-            </div>
-            <div className="pl-2 text-[10px] space-y-0.5 text-bloomberg-text">
-              <div className="font-mono">if Polymarket "Event" probability ≥ X%</div>
-              <div className="text-bloomberg-text-dim text-[9px] mt-0.5">Use quotes for event names</div>
-            </div>
-          </div>
-
-          {/* Priority 1.5: Live Polymarket Markets */}
-          <div className="mb-3 pb-2 border-b border-terminal">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-1.5">
-                <div className="text-[#8B5CF6] font-bold text-[10px] uppercase">LIVE MARKETS</div>
-                {!loadingMarkets && marketsLastUpdated && (
-                  <div className="text-bloomberg-green text-[7px] font-mono">
-                    ●
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setShowMarketsModal(true)
-                  }}
-                  className="text-bloomberg-text-dim hover:text-[#8B5CF6] text-[8px] font-mono cursor-pointer px-1 py-0.5 hover:bg-bloomberg-bg/50"
-                  title="Expand to full screen (F5)"
-                >
-                  ⛶
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setExpandedSections(prev => ({ ...prev, markets: !prev.markets }))
-                  }}
-                  className="text-bloomberg-text-dim hover:text-bloomberg-text text-[9px] font-mono cursor-pointer px-1 py-0.5 hover:bg-bloomberg-bg/50"
-                >
-                  {expandedSections.markets ? '−' : '+'}
-                </button>
-              </div>
-            </div>
-            {expandedSections.markets && (
-              <div className="pl-2 text-[10px] space-y-1 mt-1">
-                {/* Search Input */}
-                <div className="mb-2">
-                  <input
-                    type="text"
-                    value={marketSearchQuery}
-                    onChange={(e) => setMarketSearchQuery(e.target.value)}
-                    placeholder="Search markets..."
-                    className="w-full bg-bloomberg-bg border border-terminal px-2 py-1 text-[9px] text-bloomberg-text outline-none focus:border-[#8B5CF6] placeholder:text-bloomberg-text-dim"
-                  />
-                </div>
-                <div className="max-h-64 overflow-auto">
-                  {loadingMarkets ? (
-                    <div className="text-bloomberg-text-dim text-[9px] py-2 flex items-center gap-1">
-                      <span className="animate-pulse">●</span>
-                      <span>Loading live markets...</span>
-                    </div>
-                  ) : polymarketMarkets.length === 0 ? (
-                    <div className="text-bloomberg-text-dim text-[9px] py-2">No markets available</div>
-                  ) : (
-                    <>
-                      {marketsLastUpdated && (
-                        <div className="text-bloomberg-text-dim text-[7px] mb-1 italic">
-                          Updated {marketsLastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-                          {marketSearchQuery.trim() && ` • ${polymarketMarkets.length} results`}
-                        </div>
-                      )}
-                      {polymarketMarkets.length === 0 ? (
-                        <div className="text-bloomberg-text-dim text-[9px] py-2">
-                          {marketSearchQuery.trim() 
-                            ? `No markets match "${marketSearchQuery}"`
-                            : 'No markets available'}
-                        </div>
-                      ) : (
-                        // Show top 10 most relevant markets (sorted by liquidity)
-                        polymarketMarkets.slice(0, 10).map((market) => {
-                      const prob = market.currentProbability || 70
-                      const liquidityK = market.liquidity >= 1000000 
-                        ? (market.liquidity / 1000000).toFixed(1) + 'M'
-                        : (market.liquidity / 1000).toFixed(0) + 'K'
-                      
-                      // Auto-suggest asset based on event name
-                      const suggestAsset = (question: string): string => {
-                        const q = question.toLowerCase()
-                        if (q.includes('bitcoin') || q.includes('btc')) return 'BTC'
-                        if (q.includes('ethereum') || q.includes('eth')) return 'ETH'
-                        if (q.includes('solana') || q.includes('sol')) return 'SOL'
-                        if (q.includes('avalanche') || q.includes('avax')) return 'AVAX'
-                        if (q.includes('arbitrum') || q.includes('arb')) return 'ARB'
-                        if (q.includes('optimism') || q.includes('op')) return 'OP'
-                        return 'ETH' // Default
-                      }
-                      
-                      return (
-                        <div
-                          key={market.id}
-                          className="p-1.5 border border-transparent group"
-                          title={market.question}
-                        >
-                          <div className="flex items-start justify-between gap-1 mb-0.5">
-                            <div className="text-[#8B5CF6] text-[9px] font-bold flex-1 line-clamp-2 group-hover:text-[#8B5CF6]">
-                              {market.question}
-                            </div>
-                            <div className="text-bloomberg-green text-[8px] font-bold whitespace-nowrap ml-1">
-                              {prob.toFixed(0)}%
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between text-[7px] text-bloomberg-text-dim">
-                            <span>${liquidityK} liquidity</span>
-                            <span className="text-bloomberg-green">● Live</span>
-                          </div>
-                        </div>
-                      )
-                    }))}
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Priority 2: Quick Examples (Always Visible) */}
-          <div className="mb-3 pb-2 border-b border-terminal">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-bloomberg-green font-bold text-[10px] uppercase">EXAMPLES</div>
-              <button
-                type="button"
-                onClick={() => {
-                  setExpandedSections(prev => ({ ...prev, examples: !prev.examples }))
-                }}
-                className="text-bloomberg-text-dim hover:text-bloomberg-text text-[9px] font-mono cursor-pointer px-1 py-0.5 hover:bg-bloomberg-bg/50"
-              >
-                {expandedSections.examples ? '−' : '+'}
-              </button>
-            </div>
-            {expandedSections.examples && (
-              <div className="pl-2 text-[10px] space-y-1 mt-1">
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close all positions if Polymarket "Fed rate hike" probability ≥ 85%')}>
-                  Close all positions if Polymarket "Fed rate hike" probability ≥ 85%
-                </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long ETH-PERP 5x if Polymarket "Ethereum ETF Approval" probability ≥ 75%')}>
-                  Long ETH-PERP 5x if Polymarket "Ethereum ETF Approval" probability ≥ 75%
-                </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Arbitrage funding rate if spread >0.02%')}>
-                  Arbitrage funding rate if spread >0.02%
-                </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Exit position if OI drops 10% over 24h or price breaks support')}>
-                  Exit position if OI drops 10% over 24h or price breaks support
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Priority 1: Position Management - THE KILLER FEATURE */}
-          <div className="mb-2">
-            <div
-              onClick={() => {
-                setExpandedSections(prev => {
-                  const newValue = !prev.position
-                  return { ...prev, position: newValue }
-                })
-              }}
-              className="w-full flex items-center justify-between text-bloomberg-orange font-bold text-[10px] uppercase mb-1 hover:text-bloomberg-text transition-colors cursor-pointer py-1 px-1 hover:bg-bloomberg-bg/50 select-none"
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  setExpandedSections(prev => {
-                    const newValue = !prev.position
-                    return { ...prev, position: newValue }
-                  })
-                }
-              }}
-            >
-              <span>POSITION MANAGEMENT</span>
-              <span className="text-bloomberg-text-dim text-[9px] font-mono">{expandedSections.position ? '−' : '+'}</span>
-            </div>
-            {expandedSections.position && (
-              <div className="pl-2 text-[10px] space-y-1 mt-1">
-                <div className="text-bloomberg-text-dim text-[8px] mb-0.5 italic">Protect profits when events resolve</div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal bg-bloomberg-green/10 border-bloomberg-green/30" onClick={() => setInput('Close position if "Ethereum ETF Approval" probability ≥ 75%')}>
-                  Close position if "Ethereum ETF Approval" probability ≥ 75%
-                </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close 50% of position if "Bitcoin hits $100k" probability ≥ 80%')}>
-                  Close 50% of position if "Bitcoin hits $100k" probability ≥ 80%
-                </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Reverse position when "Bitcoin hits $100k" probability ≥ 80% and price above $95000')}>
-                  Reverse position when "Bitcoin hits $100k" probability ≥ 80% and price above $95000
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Priority 2: Polymarket Exits - Advanced Risk Management */}
-          <div className="mb-2">
-            <div
-              onClick={() => {
-                setExpandedSections(prev => {
-                  const newValue = !prev.exits
-                  return { ...prev, exits: newValue }
-                })
-              }}
-              className="w-full flex items-center justify-between text-bloomberg-green font-bold text-[10px] uppercase mb-1 hover:text-bloomberg-text transition-colors cursor-pointer py-1 px-1 hover:bg-bloomberg-bg/50 select-none"
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  setExpandedSections(prev => {
-                    const newValue = !prev.exits
-                    return { ...prev, exits: newValue }
-                  })
-                }
-              }}
-            >
-              <span>POLYMARKET EXITS</span>
-              <span className="text-bloomberg-text-dim text-[9px] font-mono">{expandedSections.exits ? '−' : '+'}</span>
-            </div>
-            {expandedSections.exits && (
-              <div className="pl-2 text-[10px] space-y-1 mt-1">
-                <div className="text-bloomberg-text-dim text-[8px] mb-0.5 italic">Exit before market moves against you</div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal bg-bloomberg-red/10 border-bloomberg-red/30" onClick={() => setInput('Close position if "Ethereum ETF Approval" probability drops 5% in 1h')}>
-                  Close if probability drops 5% in 1h
-                </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close position if "Bitcoin ETF Approval" event resolves before probability reaches 75%')}>
-                  Close if event resolves early
-                </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close position if "Fed cuts rates" market liquidity drops below $500K')}>
-                  Close if market liquidity drops below $500K
-                </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Close position if "Event" probability drops below 50%')}>
-                  Close if probability drops below 50%
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Priority 3: Additional Conditions */}
-          <div className="mb-2">
-            <div
-              onClick={() => {
-                setExpandedSections(prev => {
-                  const newValue = !prev.conditions
-                  return { ...prev, conditions: newValue }
-                })
-              }}
-              className="w-full flex items-center justify-between text-bloomberg-green font-bold text-[10px] uppercase mb-1 hover:text-bloomberg-text transition-colors cursor-pointer py-1 px-1 hover:bg-bloomberg-bg/50 select-none"
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  setExpandedSections(prev => {
-                    const newValue = !prev.conditions
-                    return { ...prev, conditions: newValue }
-                  })
-                }
-              }}
-            >
-              <span>ADDITIONAL CONDITIONS</span>
-              <span className="text-bloomberg-text-dim text-[9px] font-mono">{expandedSections.conditions ? '−' : '+'}</span>
-            </div>
-            {expandedSections.conditions && (
-              <div className="pl-2 text-[10px] space-y-1 mt-1">
-                <div className="text-bloomberg-text-dim text-[9px] mb-0.5">Open Interest (OI):</div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long BTC when "Bitcoin ETF approval" probability ≥ 70% and OI rises 5% over 24h')}>
-                  OI rises 5% over 24h
-                </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long ETH if "Ethereum ETF Approval" probability ≥ 65% and OI above $2.2B')}>
-                  OI above $2.2B
-                </div>
-                <div className="text-bloomberg-text-dim text-[9px] mt-1 mb-0.5">Price Levels:</div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long ETH if "Fed cuts rates" probability ≥ 70% and price above $3000')}>
-                  Price above $3000
-                </div>
-                <div className="cursor-pointer hover:text-[#8B5CF6] transition-colors p-1.5 hover:bg-bloomberg-bg border border-transparent hover:border-terminal" onClick={() => setInput('Long BTC if "Bitcoin becomes legal tender" probability ≥ 60% and price below $70000')}>
-                  Price below $70000
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Priority 4: Risk Parameters - Standard, least exciting */}
-          <div className="mb-2">
-            <div
-              onClick={() => {
-                setExpandedSections(prev => {
-                  const newValue = !prev.risk
-                  return { ...prev, risk: newValue }
-                })
-              }}
-              className="w-full flex items-center justify-between text-bloomberg-text-dim font-bold text-[10px] uppercase mb-1 hover:text-bloomberg-text transition-colors cursor-pointer py-1 px-1 hover:bg-bloomberg-bg/50 select-none"
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  setExpandedSections(prev => {
-                    const newValue = !prev.risk
-                    return { ...prev, risk: newValue }
-                  })
-                }
-              }}
-            >
-              <span>RISK PARAMETERS</span>
-              <span className="text-bloomberg-text-dim text-[9px] font-mono">{expandedSections.risk ? '−' : '+'}</span>
-            </div>
-            {expandedSections.risk && (
-              <div className="pl-2 text-[10px] space-y-1 mt-1">
-                <div className="text-bloomberg-text-dim text-[8px] mb-0.5 italic">Set in strategy spec screen</div>
-                <div className="text-bloomberg-text-dim text-[9px]">
-                  <div className="flex justify-between">
-                    <span>Stop Loss:</span>
-                    <span className="text-bloomberg-red">2.0%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Take Profit:</span>
-                    <span className="text-bloomberg-green">4.0%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Leverage:</span>
-                    <span className="text-bloomberg-text">2x</span>
-                  </div>
-                  <div className="flex justify-between mt-0.5 pt-0.5 border-t border-terminal/30">
-                    <span>Risk/Reward:</span>
-                    <span className="text-bloomberg-text">1:2</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
+      <div className="flex-1 flex overflow-hidden relative min-h-0">
         {/* Main Content Area */}
-        <div className={`flex-1 flex flex-col min-w-0 overflow-hidden ml-0 md:ml-64 relative`}>
+        <div className={`flex-1 flex flex-col min-w-0 overflow-hidden relative`}>
           {/* Terminal Header - Optimized Value Proposition */}
           <div className="hidden md:block bg-bloomberg-bg border-b border-terminal px-4 py-1.5 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-[#8B5CF6] text-sm font-bold uppercase">SENTIENT TERMINAL</div>
+                <div className="text-[#8B5CF6] text-sm font-bold uppercase">DEPLOY TERMINAL</div>
                 <div className="text-bloomberg-text-dim text-xs mt-0.5">Autonomous trading terminal</div>
               </div>
               <div className="flex items-center gap-2">
@@ -2557,23 +2188,20 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
 
 
           {/* Main Input Area */}
-          <div className="flex-1 flex flex-col justify-start md:justify-center items-center p-4 md:p-8 min-h-0 overflow-y-auto pb-[80px] md:pb-0 pt-20 md:pt-0">
-            <div className="w-full max-w-5xl px-4 md:px-0">
-              {/* Title */}
-              <div className="mb-5 md:mb-3 flex flex-col gap-1">
-                <div className="text-[#8B5CF6] font-mono text-lg md:text-lg font-bold">SENTIENT TERMINAL</div>
-              </div>
-              
+          <div className="flex-1 flex flex-col justify-center items-center p-4 md:p-6 min-h-0 overflow-y-auto pb-[80px] md:pb-0">
+            <div className="w-full max-w-5xl px-4 md:px-0" style={{ marginTop: '25vh' }}>
               {/* Main Tagline */}
-              <div className="mb-5 md:mb-3 flex items-center gap-2">
+              <div className="mb-3 flex items-center gap-2">
                 <div className="flex flex-wrap items-center gap-2 text-base md:text-base font-mono leading-relaxed">
-                  <span className="text-bloomberg-text font-bold">Your autonomous trading terminal.</span>
+                  <span className="text-bloomberg-text font-bold">Your </span>
+                  <span className="text-[#8B5CF6] font-bold">autonomous</span>
+                  <span className="text-bloomberg-text font-bold"> trading terminal.</span>
                 </div>
               </div>
               
               {/* Prompt Line - Optimized */}
-              <div className="mb-3 md:mb-3 flex items-center gap-2">
-                <span className="text-[#8B5CF6] font-mono text-sm md:text-sm font-bold">SENTIENT&gt;</span>
+              <div className="mb-2 flex items-center gap-2">
+                <span className="text-[#8B5CF6] font-mono text-sm md:text-sm font-bold">DEPLOY&gt;</span>
               </div>
 
               {/* Input Field */}
@@ -2594,7 +2222,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-6 md:mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-2">
+              <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-2">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -2611,7 +2239,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    window.open('https://twitter.com/use_sentient', '_blank', 'noopener,noreferrer')
+                    window.open('https://twitter.com/deploy_terminal', '_blank', 'noopener,noreferrer')
                   }}
                   className="px-6 py-4 md:px-4 md:py-2 bg-bloomberg-panel border border-terminal text-bloomberg-text hover:bg-bloomberg-bg hover:border-[#8B5CF6] text-sm md:text-xs font-mono uppercase transition-colors cursor-pointer text-center min-h-[44px] md:min-h-0"
                 >
@@ -2753,7 +2381,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                       YOU'RE ON THE LIST
                     </div>
                     <div className="text-bloomberg-text-dim text-sm md:text-lg font-mono mb-6 md:mb-8 text-center px-2 md:px-4">
-                      We'll notify you when Sentient is ready.
+                      We'll notify you when Deploy Terminal is ready.
                     </div>
                     <button
                       onClick={() => {
@@ -3589,109 +3217,94 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             </div>
           )}
 
-          {/* Bottom Status Bar - Hidden on mobile */}
-          <div className="hidden md:flex bg-bloomberg-panel border-t border-terminal h-6 items-center justify-between px-2 text-xs flex-shrink-0 z-30">
-            <div className="flex items-center gap-4 text-bloomberg-text-dim">
-              <span className={showHelp ? 'text-bloomberg-orange' : ''}>F1: Help</span>
-              <span className={showExamples ? 'text-bloomberg-orange' : ''}>F2: Examples</span>
-              <span className={showMarketsModal ? 'text-bloomberg-orange' : ''}>F5: Markets</span>
-              <span className={history.length > 0 ? 'text-bloomberg-text' : ''}>F3: History {history.length > 0 && `(${history.length})`}</span>
-              <span>F4: Random</span>
-              <span className="text-bloomberg-text-dim">|</span>
-              <span className="text-[9px]">↑: Previous</span>
-            </div>
-            <div className="text-bloomberg-green">
-              READY
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Conditional Orders and Positions Section - Bottom */}
+      {/* Active Strategies and Positions Section - Bottom */}
       {(() => {
-        // Mock pending conditional orders
-        const pendingOrders = [
+        // Mock active strategies
+        const activeStrategies = [
           {
-            id: 'ORD-001',
+            id: 'STRAT-001',
             asset: 'ETH',
             direction: 'Long' as const,
             condition: 'Polymarket "Ethereum ETF Approval" probability ≥ 75%',
             size: 100000,
             leverage: 3,
-            status: 'PENDING' as const,
+            status: 'ACTIVE' as const,
             createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString() // 30 minutes ago
           }
         ]
         
-        return (positions.length > 0 || pendingOrders.length > 0) ? (
-          <div className="absolute bottom-0 md:bottom-[24px] left-0 md:left-64 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 px-3 md:px-4 py-3 md:py-2.5 pb-[max(60px,calc(env(safe-area-inset-bottom)+32px))] flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[50vh] md:max-h-[200px] overflow-y-auto min-h-fit">
-            {/* Conditional Orders Section */}
-            {pendingOrders.length > 0 && (
+        return (positions.length > 0 || activeStrategies.length > 0) ? (
+          <div className="absolute bottom-0 left-0 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 pl-2 md:pl-4 pr-3 md:pr-4 py-3 md:py-2.5 pb-[max(60px,calc(env(safe-area-inset-bottom)+32px))] flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[50vh] md:max-h-[220px] overflow-y-auto min-h-fit">
+            {/* Active Strategies Section */}
+            {activeStrategies.length > 0 && (
               <div className="mb-3 pb-3 border-b border-terminal/50 last:border-b-0 last:mb-0 last:pb-0">
                 <button
-                  onClick={() => setShowPendingOrders(!showPendingOrders)}
+                  onClick={() => setShowActiveStrategies(!showActiveStrategies)}
                   className="w-full flex items-center justify-between mb-2 text-left"
                 >
-                  <div className="flex items-center gap-1.5 md:gap-2 flex-1 min-w-0">
-                    <span className="text-bloomberg-text-dim text-sm md:text-[8px] transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center">
-                      {showPendingOrders ? '▼' : '▶'}
+                  <div className="flex items-center gap-2 md:gap-2.5 flex-1 min-w-0">
+                    <span className="text-bloomberg-text-dim text-sm md:text-xs transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center">
+                      {showActiveStrategies ? '▼' : '▶'}
                     </span>
-                    <div className="w-1.5 h-1.5 bg-bloomberg-orange rounded-full animate-pulse flex-shrink-0"></div>
-                    <div className="text-bloomberg-text text-sm md:text-[9px] font-bold uppercase truncate">
-                      Pending Conditional Orders ({pendingOrders.length})
+                    <div className="w-1.5 h-1.5 bg-bloomberg-green rounded-full animate-pulse flex-shrink-0"></div>
+                    <div className="text-bloomberg-text text-sm md:text-xs font-bold uppercase truncate">
+                      Active Strategies ({activeStrategies.length})
                     </div>
                   </div>
-                  <div className="text-bloomberg-text-dim text-[8px] hidden sm:block">
-                    Waiting for conditions to trigger
+                  <div className="text-bloomberg-text-dim text-xs md:text-xs hidden sm:block">
+                    Monitoring & executing
                   </div>
                 </button>
-                {showPendingOrders && (
+                {showActiveStrategies && (
                   <div className="flex gap-2 overflow-x-auto pb-1">
-                  {pendingOrders.map((order) => {
-                    const directionColor = order.direction === 'Long' ? 'text-bloomberg-green' : 'text-bloomberg-red'
-                    const timeAgo = Math.floor((Date.now() - new Date(order.createdAt).getTime()) / (1000 * 60))
+                  {activeStrategies.map((strategy) => {
+                    const directionColor = strategy.direction === 'Long' ? 'text-bloomberg-green' : 'text-bloomberg-red'
+                    const timeAgo = Math.floor((Date.now() - new Date(strategy.createdAt).getTime()) / (1000 * 60))
                     const timeDisplay = timeAgo < 60 
                       ? `${timeAgo}m ago`
                       : `${Math.floor(timeAgo / 60)}h ${timeAgo % 60}m ago`
                     
                     return (
                       <div
-                        key={order.id}
-                        className="bg-bloomberg-bg border border-bloomberg-orange/30 hover:border-bloomberg-orange transition-all cursor-pointer px-3 md:px-3 py-3 md:py-2 min-w-[280px] md:min-w-[280px] relative group"
+                        key={strategy.id}
+                        className="bg-bloomberg-bg border border-bloomberg-green/30 hover:border-bloomberg-green transition-all cursor-pointer px-3 md:px-3 py-3 md:py-2 min-w-[280px] md:min-w-[280px] relative group"
                       >
                         {/* Active indicator bar */}
-                        <div className="absolute top-0 left-0 right-0 h-0.5 bg-bloomberg-orange/60 group-hover:bg-bloomberg-orange"></div>
+                        <div className="absolute top-0 left-0 right-0 h-0.5 bg-bloomberg-green/60 group-hover:bg-bloomberg-green"></div>
                         
                         {/* Header */}
                         <div className="flex items-center justify-between mb-2 md:mb-1.5">
                           <div className="flex items-center gap-2">
-                            <span className="text-bloomberg-text text-sm md:text-[10px] font-bold">{order.asset}</span>
-                            <span className={`${directionColor} text-xs md:text-[9px] font-bold`}>
-                              {order.direction.toUpperCase()}
+                            <span className="text-bloomberg-text text-sm md:text-xs font-bold">{strategy.asset}</span>
+                            <span className={`${directionColor} text-xs md:text-[10px] font-bold`}>
+                              {strategy.direction.toUpperCase()}
                             </span>
-                            <span className="text-bloomberg-text-dim text-[10px] md:text-[8px]">
-                              {order.leverage}x
+                            <span className="text-bloomberg-text-dim text-xs md:text-[10px]">
+                              {strategy.leverage}x
                             </span>
                           </div>
-                          <span className="text-bloomberg-orange text-[10px] md:text-[8px] font-bold px-2 py-1 md:px-1.5 md:py-0.5 bg-bloomberg-orange/20 border border-bloomberg-orange/30">
-                            {order.status}
+                          <span className="text-bloomberg-green text-[10px] md:text-[10px] font-bold px-2 py-1 md:px-1.5 md:py-0.5 bg-bloomberg-green/20 border border-bloomberg-green/30">
+                            {strategy.status}
                           </span>
                         </div>
                         
-                        {/* Condition */}
+                        {/* Strategy Condition */}
                         <div className="mb-2 md:mb-1.5">
-                          <div className="text-bloomberg-text-dim text-[9px] md:text-[7px] mb-1 md:mb-0.5">Condition:</div>
-                          <div className="text-[#8B5CF6] text-xs md:text-[9px] font-mono leading-relaxed md:leading-tight">
-                            {order.condition}
+                          <div className="text-bloomberg-text-dim text-[10px] md:text-[10px] mb-1 md:mb-0.5">Strategy:</div>
+                          <div className="text-[#8B5CF6] text-xs md:text-[11px] font-mono leading-relaxed">
+                            {strategy.condition}
                           </div>
                         </div>
                         
                         {/* Size and Time */}
                         <div className="flex items-center justify-between mt-2 md:mt-1.5">
-                          <div className="text-bloomberg-text-dim text-[10px] md:text-[8px]">
-                            Size: ${(order.size / 1000).toFixed(0)}K
+                          <div className="text-bloomberg-text-dim text-[10px] md:text-[10px]">
+                            Size: ${(strategy.size / 1000).toFixed(0)}K
                           </div>
-                          <div className="text-bloomberg-text-dim text-[9px] md:text-[7px]">
+                          <div className="text-bloomberg-text-dim text-[10px] md:text-[10px]">
                             {timeDisplay}
                           </div>
                         </div>

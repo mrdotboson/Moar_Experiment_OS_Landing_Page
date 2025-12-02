@@ -63,7 +63,7 @@ export async function GET(request: Request) {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
-            'User-Agent': 'Sentient Terminal/1.0',
+            'User-Agent': 'Deploy Terminal/1.0',
           },
           signal: AbortSignal.timeout(15000) // 15 second timeout for large requests
         })
@@ -96,7 +96,7 @@ export async function GET(request: Request) {
                   method: 'GET',
                   headers: {
                     'Accept': 'application/json',
-                    'User-Agent': 'Sentient Terminal/1.0',
+                    'User-Agent': 'Deploy Terminal/1.0',
                   },
                   signal: AbortSignal.timeout(10000)
                 })

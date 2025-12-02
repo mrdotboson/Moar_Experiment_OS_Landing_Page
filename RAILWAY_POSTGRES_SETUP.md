@@ -138,3 +138,4 @@ For early access signups, Hobby plan is more than enough!
 The API route is already updated to use PostgreSQL! 🚀
 
 
+

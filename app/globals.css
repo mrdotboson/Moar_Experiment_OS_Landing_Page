@@ -4,10 +4,10 @@
 
 :root {
   /* Pro-Grade Dark Purple Color Palette */
-  --sentient-purple: #8B5CF6;
-  --sentient-purple-dim: #6D28D9;
-  --sentient-purple-bright: #A78BFA;
-  --sentient-purple-dark: #5B21B6;
+  --deploy-purple: #8B5CF6;
+  --deploy-purple-dim: #6D28D9;
+  --deploy-purple-bright: #A78BFA;
+  --deploy-purple-dark: #5B21B6;
   --bloomberg-bg: #0A0A0A;
   --bloomberg-panel: #111111;
   --bloomberg-border: #333333;
@@ -88,12 +88,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--sentient-purple);
+  background: var(--deploy-purple);
   border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--sentient-purple-bright);
+  background: var(--deploy-purple-bright);
 }
 
 /* Bloomberg Terminal Styles */
@@ -108,7 +108,7 @@ body {
   border-bottom: 1px solid var(--bloomberg-border);
   padding: 2px 6px;
   font-size: 11px;
-  color: var(--sentient-purple);
+  color: var(--deploy-purple);
   font-weight: bold;
   text-transform: uppercase;
 }
@@ -123,8 +123,8 @@ body {
 }
 
 .terminal-input:focus {
-  outline: 1px solid var(--sentient-purple);
-  border-color: var(--sentient-purple);
+  outline: 1px solid var(--deploy-purple);
+  border-color: var(--deploy-purple);
 }
 
 .blink {
@@ -155,7 +155,7 @@ body {
 }
 
 .text-purple {
-  color: var(--sentient-purple);
+  color: var(--deploy-purple);
 }
 
 .text-green {

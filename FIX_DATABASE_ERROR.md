@@ -72,3 +72,4 @@ DATABASE_URL=postgresql://user:password@host:port/database
 3. Verify the PostgreSQL service is running (should show green/active status)
 
 
+

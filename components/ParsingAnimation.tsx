@@ -81,7 +81,7 @@ export default function ParsingAnimation({ userInput }: ParsingAnimationProps) {
       {/* Top Status Bar */}
       <div className="bg-bloomberg-panel border-b border-terminal h-6 flex items-center justify-between px-2 text-xs">
         <div className="flex items-center gap-4">
-          <span className="text-[#8B5CF6] font-bold">SENTIENT</span>
+          <span className="text-[#8B5CF6] font-bold">DEPLOY</span>
           <span className="text-bloomberg-text-dim">COMPILER</span>
           <span className="text-bloomberg-green">●</span>
           <span className="text-bloomberg-text-dim">PROCESSING</span>

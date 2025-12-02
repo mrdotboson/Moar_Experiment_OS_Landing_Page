@@ -19,7 +19,7 @@ export async function GET() {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'User-Agent': 'Sentient Terminal/1.0',
+            'User-Agent': 'Deploy Terminal/1.0',
           },
           body: JSON.stringify({
             type: 'metaAndAssetCtxs',
