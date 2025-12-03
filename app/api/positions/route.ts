@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 
+// Mark route as dynamic since it uses request.url
+export const dynamic = 'force-dynamic'
+
 export interface Position {
   id: string
   asset: string

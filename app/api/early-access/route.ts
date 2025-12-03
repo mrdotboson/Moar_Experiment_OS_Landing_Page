@@ -101,11 +101,30 @@ async function ensureTableExists() {
   }
 }
 
-// Initialize table on module load (only runs once)
+// Initialize table lazily (only when needed, not at module load)
 let tableInitialized = false
-if (!tableInitialized) {
-  ensureTableExists().catch(console.error)
-  tableInitialized = true
+let tableInitializationPromise: Promise<void> | null = null
+
+async function initializeTableIfNeeded() {
+  if (tableInitialized) {
+    return
+  }
+  if (tableInitializationPromise) {
+    return tableInitializationPromise
+  }
+  tableInitializationPromise = ensureTableExists()
+    .then(() => {
+      tableInitialized = true
+    })
+    .catch((error) => {
+      // Only log if we're not in build mode
+      if (process.env.NODE_ENV !== 'production' || process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL) {
+        console.error('Table initialization error:', error.message)
+      }
+      tableInitializationPromise = null
+      throw error
+    })
+  return tableInitializationPromise
 }
 
 export async function POST(request: NextRequest) {
@@ -165,7 +184,7 @@ export async function POST(request: NextRequest) {
 
     // Ensure table exists (in case it wasn't created yet)
     try {
-      await ensureTableExists()
+      await initializeTableIfNeeded()
     } catch (tableError: any) {
       console.error('Table creation error:', {
         message: tableError.message,
