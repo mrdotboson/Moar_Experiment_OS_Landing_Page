@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Deploy Terminal - Autonomous Trading Terminal',
-  description: 'Your autonomous trading terminal.',
+  title: 'Deploy Terminal - Autonomous Terminal',
+  description: 'Your autonomous terminal.',
   viewport: {
     width: 'device-width',
     initialScale: 1,

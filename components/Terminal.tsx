@@ -184,15 +184,14 @@ const mockPositions: Position[] = [
 
 // High-impact trading examples - VC-worthy use cases that demonstrate the power of conditional trading
 const TRADING_EXAMPLES = [
-  'Long ETH if "Ethereum ETF Approval" probability ≥ 65% and price below $3200',
+  'Create grid trading bot for ETH on Lighter, 20 grid levels, $2800-$3200 range',
+  'LP & Auto-compound yield on USDC-USDT pool on Hyperion, rebalance with a 4 hour cooldown',
+  'Create CLMM strategy: provide liquidity for SOL-USDC on Raydium, ±2% range, auto-rebalance on 0.5% drift',
   'Show funding rate arbitrage opportunities across Hyperliquid & Lighter',
   'Which exchange has the lowest funding rate for AAVE over the last 15 days?',
   'What\'s the pool behavior of the USDC-USDT pool on Raydium?',
-  'Analyze pool price volatility & APY for USD1 pools between Solana & Aptos.',
-  'Show me arbitrage between Kalshi and Polymarket',
-  'Best DEX for BTC-USDC liquidity provisioning',
-  'Compare USDC-USDT pools between Raydium and Uniswap',
-  'Analyze AAVE borrow rates vs Hyperliquid funding rates for AVAX',
+  'Analyze pool price volatility & APY for USD1USDC pools between Solana & Aptos.',
+  'Show me arbitrage opportunities between Kalshi and Polymarket',
   'Is ETH IV cheap or expensive right now?',
   'Analyze stSOL depeg risk across Raydium, Orca, and Meteora'
 ]
@@ -693,7 +692,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-[#8B5CF6] text-sm font-bold uppercase">DEPLOY TERMINAL</div>
-                <div className="text-bloomberg-text-dim text-xs mt-0.5">Autonomous trading terminal</div>
+                <div className="text-bloomberg-text-dim text-xs mt-0.5">Autonomous terminal</div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="px-2 py-0.5 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-xs font-mono">
@@ -2200,7 +2199,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                 <div className="flex flex-wrap items-center gap-2 text-base md:text-base font-mono leading-relaxed">
                   <span className="text-bloomberg-text font-bold">Your </span>
                   <span className="text-[#8B5CF6] font-bold">autonomous</span>
-                  <span className="text-bloomberg-text font-bold"> trading terminal.</span>
+                  <span className="text-bloomberg-text font-bold"> terminal.</span>
                 </div>
               </div>
               
@@ -2294,7 +2293,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                   <>
                     <div className="mb-6 space-y-5 flex-1">
                       <div className="text-bloomberg-text text-sm font-mono leading-relaxed">
-                        Join the waitlist to be among the first to use the autonomous trading terminal.
+                        Join the waitlist to be among the first to use the autonomous terminal.
                       </div>
                       
                       <div className="space-y-5">
