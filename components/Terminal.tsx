@@ -184,12 +184,17 @@ const mockPositions: Position[] = [
 
 // High-impact trading examples - VC-worthy use cases that demonstrate the power of conditional trading
 const TRADING_EXAMPLES = [
-  'Short BTC if "Fed rate hike" probability ≥ 90% and price above $102k',
-  'Increase position by 50% if "Ethereum ETF Approval" probability ≥ 90% and price below $3300',
-  'Close all positions if "China attacks Taiwan" probability ≥ 65%',
-  'Long BTC 3x if "Bitcoin ETF approval" probability ≥ 70% and OI rises 5% over 24h',
-  'Close 50% of short if "Fed rate cut" probability ≥ 100%',
-  'Long ETH if "Ethereum ETF Approval" probability ≥ 65% and price below $3200'
+  'Long ETH if "Ethereum ETF Approval" probability ≥ 65% and price below $3200',
+  'Show funding rate arbitrage opportunities across Hyperliquid & Lighter',
+  'Which exchange has the lowest funding rate for AAVE over the last 15 days?',
+  'What\'s the pool behavior of the USDC-USDT pool on Raydium?',
+  'Analyze pool price volatility & APY for USD1 pools between Solana & Aptos.',
+  'Show me arbitrage between Kalshi and Polymarket',
+  'Best DEX for BTC-USDC liquidity provisioning',
+  'Compare USDC-USDT pools between Raydium and Uniswap',
+  'Analyze AAVE borrow rates vs Hyperliquid funding rates for AVAX',
+  'Is ETH IV cheap or expensive right now?',
+  'Analyze stSOL depeg risk across Raydium, Orca, and Meteora'
 ]
 
 // Shuffle array function
@@ -3222,19 +3227,8 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
 
       {/* Active Strategies and Positions Section - Bottom */}
       {(() => {
-        // Mock active strategies
-        const activeStrategies = [
-          {
-            id: 'STRAT-001',
-            asset: 'ETH',
-            direction: 'Long' as const,
-            condition: 'Polymarket "Ethereum ETF Approval" probability ≥ 75%',
-            size: 100000,
-            leverage: 3,
-            status: 'ACTIVE' as const,
-            createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString() // 30 minutes ago
-          }
-        ]
+        // Mock active strategies - Hidden for now
+        const activeStrategies: any[] = []
         
         return (positions.length > 0 || activeStrategies.length > 0) ? (
           <div className="absolute bottom-0 left-0 right-0 bg-bloomberg-panel border-t-2 border-bloomberg-green/30 pl-2 md:pl-4 pr-3 md:pr-4 py-3 md:py-2.5 pb-[max(60px,calc(env(safe-area-inset-bottom)+32px))] flex-shrink-0 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.2)] max-h-[50vh] md:max-h-[220px] overflow-y-auto min-h-fit">
