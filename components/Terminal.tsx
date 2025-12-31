@@ -184,15 +184,11 @@ const mockPositions: Position[] = [
 
 // High-impact trading examples - VC-worthy use cases that demonstrate the power of conditional trading
 const TRADING_EXAMPLES = [
-  'Create grid trading bot for ETH on Lighter, 20 grid levels, $2800-$3200 range',
-  'LP & Auto-compound yield on USDC-USDT pool on Hyperion, rebalance with a 4 hour cooldown',
   'Create CLMM strategy: provide liquidity for SOL-USDC on Raydium, ±2% range, auto-rebalance on 0.5% drift',
-  'Show funding rate arbitrage opportunities across Hyperliquid & Lighter',
-  'Which exchange has the lowest funding rate for AAVE over the last 15 days?',
+  'Backtest SOL-USDC CLMM strategy on Raydium: ±3% range vs ±10% range over last 30 days',
+  'Create CLMM strategy: provide liquidity for USDC-USDT on Hyperion, 1 tick range, auto-rebalance when out of range with a 4 hour cooldown',
   'What\'s the pool behavior of the USDC-USDT pool on Raydium?',
   'Analyze pool price volatility & APY for USD1USDC pools between Solana & Aptos.',
-  'Show me arbitrage opportunities between Kalshi and Polymarket',
-  'Is ETH IV cheap or expensive right now?',
   'Analyze stSOL depeg risk across Raydium, Orca, and Meteora'
 ]
 
@@ -692,7 +688,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-[#8B5CF6] text-sm font-bold uppercase">DEPLOY TERMINAL</div>
-                <div className="text-bloomberg-text-dim text-xs mt-0.5">Autonomous terminal</div>
+                <div className="text-bloomberg-text-dim text-xs mt-0.5">Autonomous terminal for concentrated liquidity management</div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="px-2 py-0.5 bg-bloomberg-green/20 border border-bloomberg-green text-bloomberg-green text-xs font-mono">
@@ -2197,9 +2193,8 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
               {/* Main Tagline */}
               <div className="mb-3 flex items-center gap-2">
                 <div className="flex flex-wrap items-center gap-2 text-base md:text-base font-mono leading-relaxed">
-                  <span className="text-bloomberg-text font-bold">Your </span>
-                  <span className="text-[#8B5CF6] font-bold">autonomous</span>
-                  <span className="text-bloomberg-text font-bold"> terminal.</span>
+                  <span className="text-[#8B5CF6] font-bold">autonomous terminal</span>
+                  <span className="text-bloomberg-text font-bold"> for concentrated liquidity management</span>
                 </div>
               </div>
               
@@ -2243,7 +2238,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    window.open('https://twitter.com/deploy_terminal', '_blank', 'noopener,noreferrer')
+                    window.open('https://x.com/deployterminal', '_blank', 'noopener,noreferrer')
                   }}
                   className="px-6 py-4 md:px-4 md:py-2 bg-bloomberg-panel border border-terminal text-bloomberg-text hover:bg-bloomberg-bg hover:border-[#8B5CF6] text-sm md:text-xs font-mono uppercase transition-colors cursor-pointer text-center min-h-[44px] md:min-h-0"
                 >
@@ -2293,7 +2288,7 @@ export default function Terminal({ onSubmit, flowState, userInput }: TerminalPro
                   <>
                     <div className="mb-6 space-y-5 flex-1">
                       <div className="text-bloomberg-text text-sm font-mono leading-relaxed">
-                        Join the waitlist to be among the first to use the autonomous terminal.
+                        Join the waitlist to be among the first to use the autonomous terminal for concentrated liquidity management.
                       </div>
                       
                       <div className="space-y-5">
