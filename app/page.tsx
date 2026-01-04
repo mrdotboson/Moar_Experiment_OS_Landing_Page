@@ -6,7 +6,7 @@ import ParsingAnimation from '@/components/ParsingAnimation'
 import StrategySpec from '@/components/StrategySpec'
 import DeployReveal from '@/components/CatalystReveal'
 import Particles from '@/components/Particles'
-import { parseStrategy } from '@/lib/strategyParser'
+import { parseStrategy, ParsedStrategy } from '@/lib/strategyParser'
 
 type FlowState = 
   | 'start'
@@ -22,7 +22,7 @@ const FLOW_ORDER: FlowState[] = ['start', 'spec', 'reveal']
 export default function Home() {
   const [flowState, setFlowState] = useState<FlowState>('start')
   const [userInput, setUserInput] = useState('')
-  const [parsedStrategy, setParsedStrategy] = useState<any>(null)
+  const [parsedStrategy, setParsedStrategy] = useState<ParsedStrategy | null>(null)
   const [autoAdvance, setAutoAdvance] = useState(true)
   const autoAdvanceTimers = useRef<NodeJS.Timeout[]>([])
 
@@ -102,9 +102,16 @@ export default function Home() {
   }, [flowState, autoAdvance, advanceFlow, goBackFlow, resetFlow])
 
   const handleInputSubmit = (input: string) => {
-    // Landing page - do not process strategies, just display the concept
-    // All navigation to parsing/execution pages is disabled
-    return
+    // Landing page demo mode - strategy processing is disabled
+    // This is intentional: the landing page showcases the UI concept
+    // without actually executing trades or processing real strategies.
+    // In a production implementation, this would:
+    // 1. Parse the strategy using parseStrategy(input)
+    // 2. Transition to the parsing/execution flow
+    // 3. Connect to actual trading APIs
+    if (process.env.NODE_ENV === 'development') {
+      console.info('[Demo Mode] Strategy input received but not processed:', input.slice(0, 50) + '...')
+    }
   }
 
   // Calculate progress

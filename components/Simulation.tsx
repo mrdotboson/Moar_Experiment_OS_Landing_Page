@@ -3,6 +3,41 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { ParsedStrategy } from '@/lib/strategyParser'
 
+// Chart configuration constants
+const CHART_CONFIG = {
+  CANDLE_COUNT: 150,
+  ANIMATION_DURATION_MS: 4000,
+  EMA_PERIOD: 21,
+  ENTRY_POSITION: 0.25, // 25% into chart
+  EXIT_POSITION: 0.75,  // 75% into chart
+  PRICE_CHART_RATIO: 0.7, // 70% for price, 30% for volume
+  BASE_PRICE: 3042,
+  BASE_VOLUME: 80000000,
+  VOLUME_VARIANCE: 40000000,
+} as const
+
+// Grid configuration
+const GRID_CONFIG = {
+  HORIZONTAL_LINES: 5,
+  TIME_DIVISIONS: 6,
+} as const
+
+// Color palette (Bloomberg terminal style)
+const COLORS = {
+  CANDLE_UP: '#26A69A',
+  CANDLE_DOWN: '#EF5350',
+  CANDLE_UP_BORDER: '#1E8E82',
+  CANDLE_DOWN_BORDER: '#D32F2F',
+  GRID_PRIMARY: '#333333',
+  GRID_SECONDARY: '#222222',
+  TEXT_DIM: '#999999',
+  TEXT_DIMMER: '#666666',
+  EMA_LINE: '#FF6600',
+  ENTRY_MARKER: '#00FF88',
+  EXIT_MARKER: '#FF4444',
+  BACKGROUND: '#0A0A0A',
+} as const
+
 interface SimulationProps {
   strategy: ParsedStrategy
   embedded?: boolean // If true, hide header/status bars (for use in tabs)
@@ -81,7 +116,7 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
     // Generate realistic OHLC candlestick data (TradingView quality)
     const generateCandles = (count: number): Candle[] => {
       const candles: Candle[] = []
-      let basePrice = 3042
+      let basePrice: number = CHART_CONFIG.BASE_PRICE
       let momentum = 0 // Track price momentum for more realistic movement
       
       // Create realistic price movement with trend
@@ -127,7 +162,7 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
         const isReversal = i > 0 && Math.sign(close - open) !== Math.sign(open - candles[i - 1].open)
         
         // Base volume with realistic variation
-        const baseVolume = 80000000 + Math.random() * 40000000 // 80-120M base
+        const baseVolume = CHART_CONFIG.BASE_VOLUME + Math.random() * CHART_CONFIG.VOLUME_VARIANCE
         
         // Volume spikes on big moves and reversals
         let volumeMultiplier = 1.0
@@ -144,15 +179,15 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
       return candles
     }
 
-    const candles = generateCandles(150)
+    const candles = generateCandles(CHART_CONFIG.CANDLE_COUNT)
     const minPrice = Math.min(...candles.map(c => c.low))
     const maxPrice = Math.max(...candles.map(c => c.high))
     const priceRange = maxPrice - minPrice
     const padding = priceRange * 0.1
 
     // Calculate entry/exit points
-    const entryIndex = Math.floor(candles.length * 0.25)
-    const exitIndex = Math.floor(candles.length * 0.75)
+    const entryIndex = Math.floor(candles.length * CHART_CONFIG.ENTRY_POSITION)
+    const exitIndex = Math.floor(candles.length * CHART_CONFIG.EXIT_POSITION)
     const entryPrice = candles[entryIndex].close
     const exitPrice = candles[exitIndex].close
     const isLong = strategy.action === 'LONG'
@@ -177,28 +212,27 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
       const candleSpacing = width / visibleCandles
 
       // Draw grid lines (horizontal)
-      ctx.strokeStyle = '#333333'
+      ctx.strokeStyle = COLORS.GRID_PRIMARY
       ctx.lineWidth = 1
-      for (let i = 0; i <= 5; i++) {
-        const y = (chartHeight / 5) * i
+      for (let i = 0; i <= GRID_CONFIG.HORIZONTAL_LINES; i++) {
+        const y = (chartHeight / GRID_CONFIG.HORIZONTAL_LINES) * i
         ctx.beginPath()
         ctx.moveTo(0, y)
         ctx.lineTo(width, y)
         ctx.stroke()
         
         // Price labels
-        const price = maxPrice - (priceRange / 5) * i
-        ctx.fillStyle = '#999999'
+        const price = maxPrice - (priceRange / GRID_CONFIG.HORIZONTAL_LINES) * i
+        ctx.fillStyle = COLORS.TEXT_DIM
         ctx.font = '10px monospace'
         ctx.textAlign = 'left'
         ctx.fillText(`$${price.toFixed(2)}`, 4, y + 3)
       }
 
       // Draw vertical grid lines (time axis)
-      const timeDivisions = 6
-      for (let i = 0; i <= timeDivisions; i++) {
-        const x = (width / timeDivisions) * i
-        ctx.strokeStyle = '#222222'
+      for (let i = 0; i <= GRID_CONFIG.TIME_DIVISIONS; i++) {
+        const x = (width / GRID_CONFIG.TIME_DIVISIONS) * i
+        ctx.strokeStyle = COLORS.GRID_SECONDARY
         ctx.lineWidth = 1
         ctx.beginPath()
         ctx.moveTo(x, 0)
@@ -206,11 +240,11 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
         ctx.stroke()
         
         // Time labels
-        if (i > 0 && i < timeDivisions) {
-          const timePercent = i / timeDivisions
+        if (i > 0 && i < GRID_CONFIG.TIME_DIVISIONS) {
+          const timePercent = i / GRID_CONFIG.TIME_DIVISIONS
           const hours = Math.floor(timePercent * 2.5)
           const minutes = Math.floor((timePercent * 2.5 - hours) * 60)
-          ctx.fillStyle = '#666666'
+          ctx.fillStyle = COLORS.TEXT_DIMMER
           ctx.font = '9px monospace'
           ctx.textAlign = 'center'
           ctx.fillText(`${hours}h${minutes.toString().padStart(2, '0')}m`, x, chartHeight - 2)
@@ -226,11 +260,11 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
         const isUp = candle.close >= candle.open
         
         // Match candlestick colors for consistency (realistic TradingView style)
-        volumeCtx.fillStyle = isUp ? '#26A69A' : '#EF5350'
+        volumeCtx.fillStyle = isUp ? COLORS.CANDLE_UP : COLORS.CANDLE_DOWN
         volumeCtx.fillRect(x, volumeHeight - barHeight, candleWidth, barHeight)
-        
+
         // Subtle outline
-        volumeCtx.strokeStyle = isUp ? '#1E8E82' : '#D32F2F'
+        volumeCtx.strokeStyle = isUp ? COLORS.CANDLE_UP_BORDER : COLORS.CANDLE_DOWN_BORDER
         volumeCtx.lineWidth = 0.5
         volumeCtx.strokeRect(x, volumeHeight - barHeight, candleWidth, barHeight)
       }
@@ -246,9 +280,9 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
         
         const isUp = candle.close >= candle.open
         // More realistic colors - slightly muted, professional
-        const wickColor = isUp ? '#26A69A' : '#EF5350' // Teal for up, red for down
-        const bodyColor = isUp ? '#26A69A' : '#EF5350'
-        const bodyBorderColor = isUp ? '#1E8E82' : '#D32F2F' // Slightly darker border
+        const wickColor = isUp ? COLORS.CANDLE_UP : COLORS.CANDLE_DOWN
+        const bodyColor = isUp ? COLORS.CANDLE_UP : COLORS.CANDLE_DOWN
+        const bodyBorderColor = isUp ? COLORS.CANDLE_UP_BORDER : COLORS.CANDLE_DOWN_BORDER
         
         // Draw wick (thin line, only if there's a wick)
         const hasWick = Math.abs(highY - lowY) > Math.abs(openY - closeY) + 2
@@ -277,7 +311,7 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
       }
 
       // Draw EMA lines (smooth moving average)
-      const emaPeriod = 21
+      const emaPeriod = CHART_CONFIG.EMA_PERIOD
       if (visibleCandles > emaPeriod) {
         const emaValues: number[] = []
         for (let i = 0; i < visibleCandles; i++) {
@@ -291,7 +325,7 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
         }
 
         // Draw EMA line with smooth rendering
-        ctx.strokeStyle = '#FF6600'
+        ctx.strokeStyle = COLORS.EMA_LINE
         ctx.lineWidth = 2
         ctx.setLineDash([])
         ctx.lineCap = 'round'
@@ -312,7 +346,7 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
         if (visibleCandles > emaPeriod) {
           const lastX = (visibleCandles - 1) * candleSpacing + candleSpacing * 0.1 + candleWidth / 2
           const lastY = priceToY(emaValues[visibleCandles - 1])
-          ctx.fillStyle = '#FF6600'
+          ctx.fillStyle = COLORS.EMA_LINE
           ctx.font = 'bold 10px monospace'
           ctx.textAlign = 'left'
           ctx.fillText(`EMA(${emaPeriod}): $${emaValues[visibleCandles - 1].toFixed(2)}`, lastX + 6, lastY)
@@ -320,21 +354,21 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
       }
 
       // Draw entry/exit markers
-      if (progress > 0.25) {
+      if (progress > CHART_CONFIG.ENTRY_POSITION) {
         const entryX = entryIndex * candleSpacing + candleSpacing * 0.1 + candleWidth / 2
         const entryY = priceToY(entryPrice)
-        
+
         // Entry marker (arrow pointing up)
-        ctx.fillStyle = '#00FF88'
+        ctx.fillStyle = COLORS.ENTRY_MARKER
         ctx.beginPath()
         ctx.arc(entryX, entryY, 6, 0, Math.PI * 2)
         ctx.fill()
-        ctx.strokeStyle = '#0A0A0A'
+        ctx.strokeStyle = COLORS.BACKGROUND
         ctx.lineWidth = 2
         ctx.stroke()
-        
+
         // Entry arrow
-        ctx.fillStyle = '#00FF88'
+        ctx.fillStyle = COLORS.ENTRY_MARKER
         ctx.beginPath()
         ctx.moveTo(entryX, entryY - 10)
         ctx.lineTo(entryX - 4, entryY - 4)
@@ -343,50 +377,50 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
         ctx.fill()
         
         // Entry label with background
-        ctx.fillStyle = '#0A0A0A'
+        ctx.fillStyle = COLORS.BACKGROUND
         ctx.fillRect(entryX + 10, entryY - 18, 45, 12)
-        ctx.fillStyle = '#00FF88'
+        ctx.fillStyle = COLORS.ENTRY_MARKER
         ctx.font = 'bold 10px monospace'
         ctx.textAlign = 'left'
         ctx.fillText('ENTRY', entryX + 12, entryY - 8)
       }
 
-      if (progress > 0.75) {
+      if (progress > CHART_CONFIG.EXIT_POSITION) {
         const exitX = exitIndex * candleSpacing + candleSpacing * 0.1 + candleWidth / 2
         const exitY = priceToY(exitPrice)
-        
+
         // Exit marker (arrow pointing down)
-        ctx.fillStyle = '#FF4444'
+        ctx.fillStyle = COLORS.EXIT_MARKER
         ctx.beginPath()
         ctx.arc(exitX, exitY, 6, 0, Math.PI * 2)
         ctx.fill()
-        ctx.strokeStyle = '#0A0A0A'
+        ctx.strokeStyle = COLORS.BACKGROUND
         ctx.lineWidth = 2
         ctx.stroke()
-        
+
         // Exit arrow
-        ctx.fillStyle = '#FF4444'
+        ctx.fillStyle = COLORS.EXIT_MARKER
         ctx.beginPath()
         ctx.moveTo(exitX, exitY + 10)
         ctx.lineTo(exitX - 4, exitY + 4)
         ctx.lineTo(exitX + 4, exitY + 4)
         ctx.closePath()
         ctx.fill()
-        
+
         // Exit label with background
-        ctx.fillStyle = '#0A0A0A'
+        ctx.fillStyle = COLORS.BACKGROUND
         ctx.fillRect(exitX + 10, exitY - 18, 40, 12)
-        ctx.fillStyle = '#FF4444'
+        ctx.fillStyle = COLORS.EXIT_MARKER
         ctx.font = 'bold 10px monospace'
         ctx.textAlign = 'left'
         ctx.fillText('EXIT', exitX + 12, exitY - 8)
         
         // PnL line
-        if (progress > 0.75) {
+        if (progress > CHART_CONFIG.EXIT_POSITION) {
           const entryX = entryIndex * candleSpacing + candleSpacing * 0.1 + candleWidth / 2
           const entryY = priceToY(entryPrice)
-          
-          ctx.strokeStyle = '#00FF88'
+
+          ctx.strokeStyle = COLORS.ENTRY_MARKER
           ctx.lineWidth = 2
           ctx.setLineDash([4, 4])
           ctx.beginPath()
@@ -404,7 +438,7 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
         const priceY = priceToY(currentPrice)
         
         // Horizontal price line
-        ctx.strokeStyle = '#FF6600'
+        ctx.strokeStyle = COLORS.EMA_LINE
         ctx.lineWidth = 1
         ctx.setLineDash([4, 4])
         ctx.beginPath()
@@ -412,15 +446,15 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
         ctx.lineTo(width, priceY)
         ctx.stroke()
         ctx.setLineDash([])
-        
+
         // Price label on right
-        ctx.fillStyle = '#FF6600'
+        ctx.fillStyle = COLORS.EMA_LINE
         ctx.font = 'bold 11px monospace'
         ctx.textAlign = 'right'
         ctx.fillText(`$${currentPrice.toFixed(2)}`, width - 4, priceY - 4)
         
         // Volume label
-        volumeCtx.fillStyle = '#999999'
+        volumeCtx.fillStyle = COLORS.TEXT_DIM
         volumeCtx.font = '9px monospace'
         volumeCtx.textAlign = 'right'
         const volumeText = (lastCandle.volume / 1000000).toFixed(1) + 'M'
@@ -442,7 +476,7 @@ export default function Simulation({ strategy, embedded = false }: SimulationPro
     }
 
     let startTime: number | null = null
-    const duration = 4000
+    const duration = CHART_CONFIG.ANIMATION_DURATION_MS
 
     const animate = (timestamp: number) => {
       if (!startTime) startTime = timestamp

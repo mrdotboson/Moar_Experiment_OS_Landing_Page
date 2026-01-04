@@ -19,9 +19,41 @@ function sanitizeInput(input: string, maxLength: number): string {
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
 const RATE_LIMIT_WINDOW = 60 * 1000 // 1 minute
 const RATE_LIMIT_MAX_REQUESTS = 5 // Max 5 requests per minute per IP
+const RATE_LIMIT_CLEANUP_INTERVAL = 5 * 60 * 1000 // Clean up every 5 minutes
+const RATE_LIMIT_MAX_ENTRIES = 10000 // Maximum entries before forced cleanup
+
+// Cleanup expired rate limit entries to prevent memory leaks
+function cleanupRateLimitMap(): void {
+  const now = Date.now()
+  for (const [ip, record] of rateLimitMap.entries()) {
+    if (now > record.resetTime) {
+      rateLimitMap.delete(ip)
+    }
+  }
+}
+
+// Schedule periodic cleanup (runs in background)
+let cleanupInterval: NodeJS.Timeout | null = null
+function ensureCleanupScheduled(): void {
+  if (!cleanupInterval) {
+    cleanupInterval = setInterval(cleanupRateLimitMap, RATE_LIMIT_CLEANUP_INTERVAL)
+    // Prevent interval from keeping the process alive
+    if (cleanupInterval.unref) {
+      cleanupInterval.unref()
+    }
+  }
+}
 
 function checkRateLimit(ip: string): boolean {
+  ensureCleanupScheduled()
+
   const now = Date.now()
+
+  // Force cleanup if map grows too large (prevents memory exhaustion attacks)
+  if (rateLimitMap.size > RATE_LIMIT_MAX_ENTRIES) {
+    cleanupRateLimitMap()
+  }
+
   const record = rateLimitMap.get(ip)
 
   if (!record || now > record.resetTime) {
@@ -165,17 +197,9 @@ export async function POST(request: NextRequest) {
       : null
 
     // Check if DATABASE_URL or DATABASE_PUBLIC_URL is configured
-    // Log all DATABASE-related env vars for debugging (without values)
-    const dbEnvVars = Object.keys(process.env).filter(k => k.includes('DATABASE'))
     const connectionString = process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL
-    console.log('DATABASE-related env vars found:', dbEnvVars)
-    console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL)
-    console.log('DATABASE_PUBLIC_URL exists:', !!process.env.DATABASE_PUBLIC_URL)
-    console.log('Using connection string:', connectionString ? 'Yes' : 'No')
-    
+
     if (!connectionString) {
-      console.error('Neither DATABASE_URL nor DATABASE_PUBLIC_URL is set in environment variables')
-      console.error('All env vars with DATABASE:', dbEnvVars)
       return NextResponse.json(
         { error: 'Database not configured. Please contact support.' },
         { status: 500 }
